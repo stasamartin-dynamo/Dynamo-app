@@ -505,9 +505,9 @@ export default function App() {
     <div className="pt" style={{marginBottom:8,opacity:m.done?.5:1}}>vs {m.opponent}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time}{m.meetTime&&<span style={{color:'var(--ac)'}}> · sraz {m.meetTime}</span>} · {m.location==="Domácí"?"Doma":"Venku"} · {m.type}</div>
     {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v)}}}>Uložit</button></div>}
     {m.result&&<div style={{background:'var(--ag)',borderRadius:'var(--rd)',padding:12,marginBottom:12,textAlign:'center'}}><div style={{fontSize:10,color:'var(--t3)',textTransform:'uppercase'}}>Výsledek</div><div style={{fontFamily:'var(--fd)',fontSize:28,color:'var(--ac)'}}>{m.result}</div></div>}
-    {(()=>{const allPlayers=T.players.sort((a,b)=>a.name.localeCompare(b.name));const confirmed=allPlayers.filter(p=>(m.attendance||{})[p.name]);return allPlayers.length>0?<><div className="lb">Nominace ({confirmed.length} / {allPlayers.length})</div>
-    <div className="lc" style={{marginBottom:8}}>{allPlayers.map(p=>{const isOn=!!(m.attendance||{})[p.name];return <button key={p.id} className={`lch ${isOn?'s':''}`} onClick={()=>{togAtt("matches",m.id,p.name,!isOn);if(!isOn&&(m.excuses||{})[p.name])setExcuse("matches",m.id,p.name,"")}}>{pName(p)}</button>})}</div>
-    {confirmed.length>0&&<button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>}
+    {(()=>{const confirmed=T.players.filter(p=>(m.attendance||{})[p.name]).sort((a,b)=>a.name.localeCompare(b.name));return confirmed.length>0?<><div className="lb">Nominováni ({confirmed.length})</div>
+    <div className="lc" style={{marginBottom:8}}>{confirmed.map(p=> <button key={p.id} className="lch s" onClick={()=>togAtt("matches",m.id,p.name,false)}>{pName(p)} ✕</button>)}</div>
+    <button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>
     {showPitch&&confirmed.length>0&&(()=>{const lp=confirmed;const excused=T.players.filter(p=>(m.excuses||{})[p.name]);const pos=m.lineupPos||{};const pitchKey=lp.map(p=>p.id).join('.');
       const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];
         const lines={Brankář:88,Obránce:68,Záložník:42,Útočník:18};
