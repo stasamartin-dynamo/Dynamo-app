@@ -1,6 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="28" fill="#0a0f1a"/>
-  <circle cx="64" cy="64" r="40" fill="none" stroke="#22d3ee" stroke-width="4"/>
-  <path d="M64 24a52 52 0 0 1 16 40 52 52 0 0 1-16 40 52 52 0 0 1-16-40 52 52 0 0 1 16-40z" fill="none" stroke="#22d3ee" stroke-width="3"/>
-  <line x1="24" y1="64" x2="104" y2="64" stroke="#22d3ee" stroke-width="3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0a0f1a"/>
+  <circle cx="256" cy="256" r="180" fill="#f1f5f9" stroke="#1e293b" stroke-width="6"/>
+  <!-- Pentagons -->
+  <polygon points="256,116 288,152 276,192 236,192 224,152" fill="#1e293b"/>
+  <polygon points="160,196 148,160 172,132 208,140 212,180" fill="#1e293b"/>
+  <polygon points="352,196 364,160 340,132 304,140 300,180" fill="#1e293b"/>
+  <polygon points="188,316 160,288 168,248 204,236 224,268" fill="#1e293b"/>
+  <polygon points="324,316 352,288 344,248 308,236 288,268" fill="#1e293b"/>
+  <polygon points="256,396 224,368 232,328 280,328 288,368" fill="#1e293b"/>
+  <!-- Connecting lines -->
+  <line x1="236" y1="192" x2="212" y2="180" stroke="#1e293b" stroke-width="5"/>
+  <line x1="276" y1="192" x2="300" y2="180" stroke="#1e293b" stroke-width="5"/>
+  <line x1="160" y1="196" x2="168" y2="248" stroke="#1e293b" stroke-width="5"/>
+  <line x1="352" y1="196" x2="344" y2="248" stroke="#1e293b" stroke-width="5"/>
+  <line x1="204" y1="236" x2="236" y2="192" stroke="#1e293b" stroke-width="5"/>
+  <line x1="308" y1="236" x2="276" y2="192" stroke="#1e293b" stroke-width="5"/>
+  <line x1="224" y1="268" x2="232" y2="328" stroke="#1e293b" stroke-width="5"/>
+  <line x1="288" y1="268" x2="280" y2="328" stroke="#1e293b" stroke-width="5"/>
+  <line x1="188" y1="316" x2="224" y2="368" stroke="#1e293b" stroke-width="5"/>
+  <line x1="324" y1="316" x2="288" y2="368" stroke="#1e293b" stroke-width="5"/>
+  <line x1="256" y1="116" x2="256" y2="76" stroke="#1e293b" stroke-width="5"/>
+  <line x1="148" y1="160" x2="112" y2="148" stroke="#1e293b" stroke-width="5"/>
+  <line x1="364" y1="160" x2="400" y2="148" stroke="#1e293b" stroke-width="5"/>
+  <line x1="160" y1="288" x2="120" y2="308" stroke="#1e293b" stroke-width="5"/>
+  <line x1="352" y1="288" x2="392" y2="308" stroke="#1e293b" stroke-width="5"/>
+  <line x1="256" y1="396" x2="256" y2="436" stroke="#1e293b" stroke-width="5"/>
 </svg>
