@@ -509,7 +509,13 @@ export default function App() {
     <div className="lc" style={{marginBottom:8}}>{allPlayers.map(p=>{const isOn=!!(m.attendance||{})[p.name];return <button key={p.id} className={`lch ${isOn?'s':''}`} onClick={()=>{togAtt("matches",m.id,p.name,!isOn);if(!isOn&&(m.excuses||{})[p.name])setExcuse("matches",m.id,p.name,"")}}>{pName(p)}</button>})}</div>
     {confirmed.length>0&&<button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>}
     {showPitch&&confirmed.length>0&&(()=>{const lp=confirmed;const excused=T.players.filter(p=>(m.excuses||{})[p.name]);const pos=m.lineupPos||{};const pitchKey=lp.map(p=>p.id).join('.');
-      const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];const n=lp.length;const cols=Math.min(Math.ceil(Math.sqrt(n)),4);const row=Math.floor(i/cols);const col=i%cols;const rows=Math.ceil(n/cols);return{x:15+col*(70/(Math.max(cols-1,1))),y:8+row*(70/(Math.max(rows-1,1)))};};
+      const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];
+        const lines={Brankář:88,Obránce:68,Záložník:42,Útočník:18};
+        const yLine=lines[p.position]||50;
+        const sameLine=lp.filter(pl=>pl.position===p.position);
+        const idx=sameLine.indexOf(p);const cnt=sameLine.length;
+        const spread=cnt===1?50:20+idx*(60/Math.max(cnt-1,1));
+        return{x:spread,y:yLine};};
       const onDrag=(pid,e)=>{const el=e.currentTarget.closest('.lf');if(!el)return;const r=el.getBoundingClientRect();const getXY=(ev)=>{const cx=ev.touches?ev.touches[0].clientX:ev.clientX;const cy=ev.touches?ev.touches[0].clientY:ev.clientY;return{x:Math.max(5,Math.min(95,((cx-r.left)/r.width)*100)),y:Math.max(3,Math.min(95,((cy-r.top)/r.height)*100))}};
         const fp=e.currentTarget;fp.style.zIndex=10;
         const mv=(ev)=>{ev.preventDefault();const{x,y}=getXY(ev);fp.style.left=x+'%';fp.style.top=y+'%';fp.style.transform='translate(-50%,-50%)'};
