@@ -367,26 +367,30 @@ export default function App() {
       {(()=>{const mkBtn=(t,icon)=>{const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:t.id==="treneri"?(D.teams[t.id]?.tasks||[]).filter(tk=>tk.status!=="hotovo").length:(D.teams[t.id]?.players||[]).length;const evCnt=t.id==="vybor"||t.id==="treneri"?0:(D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length;const lbl=t.id==="vybor"?"členů":t.id==="treneri"?"zápisů":"";return{t,icon,cnt,evCnt,lbl}};
       const rows=[[mkBtn(TEAMS.find(x=>x.id==="starsi-zaci"),"SŽ"),mkBtn(TEAMS.find(x=>x.id==="mladsi-zaci"),"MŽ")],[mkBtn(TEAMS.find(x=>x.id==="starsi-pripravka"),"SP"),mkBtn(TEAMS.find(x=>x.id==="mladsi-pripravka"),"MP")]];
       const aTym=mkBtn(TEAMS.find(x=>x.id==="a-tym"),"A");
-      const bottom=[mkBtn(TEAMS.find(x=>x.id==="treneri"),"T"),mkBtn(TEAMS.find(x=>x.id==="vybor"),"V")];
+      const vybor=mkBtn(TEAMS.find(x=>x.id==="vybor"),"V");
+      const treneri=mkBtn(TEAMS.find(x=>x.id==="treneri"),"T");
       const SqBtn=({d})=><button className="ts-btn" style={{"--tc":d.t.color}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
         <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:d.t.color,borderRadius:'0 0 4px 4px'}}/>
         <div className="ts-dot" style={{background:d.t.color}}>{d.icon}</div>
         <div><div className="ts-name">{d.t.name}</div><div className="ts-sub"><span>👥 {d.cnt}</span>{d.evCnt>0&&<span>📅 {d.evCnt}</span>}</div></div>
       </button>;
+      const SmBtn=({d})=><button style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:'var(--cd)',border:'none',borderRadius:12,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 8px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left',width:'100%'}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
+        <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:d.t.color}}/>
+        <div style={{width:28,height:28,borderRadius:8,background:d.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:12,color:'#fff',fontWeight:900,flexShrink:0}}>{d.icon}</div>
+        <div><div style={{fontWeight:700,fontSize:11}}>{d.t.name}</div><div style={{fontSize:8,color:'var(--t3)'}}>{d.cnt} {d.lbl}</div></div>
+      </button>;
       return <div style={{width:'100%',maxWidth:380,flexShrink:0}}>
         {rows.map((row,ri)=><div key={ri} className="ts-grid" style={{marginBottom:8}}>{row.map(d=><SqBtn key={d.t.id} d={d}/>)}</div>)}
-        <button style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'14px 18px',background:'var(--cd)',border:'none',borderRadius:16,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 12px rgba(14,116,144,.08)',position:'relative',overflow:'hidden',transition:'all .2s',marginBottom:8}} onClick={()=>{setTeam("a-tym");setAuth(false);setPin("");setPg("home")}}>
-          <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:aTym.t.color}}/>
-          <div style={{width:44,height:44,borderRadius:14,background:aTym.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:20,color:'#fff',fontWeight:900,flexShrink:0}}>A</div>
-          <div style={{flex:1}}><div style={{fontWeight:700,fontSize:15}}>{aTym.t.name}</div><div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>👥 {aTym.cnt} · 📅 {aTym.evCnt}</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          {bottom.map(d=><button key={d.t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',background:'var(--cd)',border:'none',borderRadius:14,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 10px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left'}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
-            <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:d.t.color}}/>
-            <div style={{width:32,height:32,borderRadius:10,background:d.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:14,color:'#fff',fontWeight:900,flexShrink:0}}>{d.icon}</div>
-            <div><div style={{fontWeight:700,fontSize:12}}>{d.t.name}</div><div style={{fontSize:9,color:'var(--t3)'}}>{d.cnt} {d.lbl}</div></div>
-          </button>)}
+          <button className="ts-btn" style={{"--tc":aTym.t.color}} onClick={()=>{setTeam("a-tym");setAuth(false);setPin("");setPg("home")}}>
+            <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:aTym.t.color,borderRadius:'0 0 4px 4px'}}/>
+            <div className="ts-dot" style={{background:aTym.t.color}}>A</div>
+            <div><div className="ts-name">{aTym.t.name}</div><div className="ts-sub"><span>👥 {aTym.cnt}</span><span>📅 {aTym.evCnt}</span></div></div>
+          </button>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            <SmBtn d={vybor}/>
+            <SmBtn d={treneri}/>
+          </div>
         </div>
       </div>})()}</>)}
 
