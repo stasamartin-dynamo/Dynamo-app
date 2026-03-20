@@ -311,8 +311,10 @@ export default function App() {
 
   const cEvents=(D.clubEvents||[]).sort((a,b)=>b.date.localeCompare(a.date));
   const addCE=(ev)=>{save({...D,clubEvents:[...(D.clubEvents||[]),{...ev,id:"ce_"+uid(),date:now(),docs:[]}]});setCeMod(null)};
+  const editCE=(ceId,updates)=>{save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,...updates}:e)});setCeMod(null)};
   const delCE=(id)=>save({...D,clubEvents:(D.clubEvents||[]).filter(e=>e.id!==id)});
   const addDocToCE=(ceId,doc)=>save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:[...(e.docs||[]),doc]}:e)});
+  const delDocFromCE=(ceId,docIdx)=>save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:(e.docs||[]).filter((_,i)=>i!==docIdx)}:e)});
   const fd0=d=>{try{return new Date(d.includes?.('T')?d:d+"T00:00:00").toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'})}catch{return d}};
   const dlDoc0=(doc)=>{try{const parts=doc.data.split(',');const mime=parts[0].match(/:(.*?);/)[1];const bin=atob(parts[1]);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);const blob=new Blob([arr],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=doc.name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}catch(e){console.error(e)}};
   const openDoc0=(doc)=>{const w=window.open('','_blank');if(w){w.document.write('<!DOCTYPE html><html><head><title>'+doc.name+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:sans-serif;background:#f0f0f0}.bar{padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:12px;align-items:center;position:sticky;top:0;z-index:10}.bar button{color:#1a8aab;font-weight:600;font-size:14px;background:none;border:none;cursor:pointer}.cnt{padding:16px;text-align:center}</style></head><body><div class="bar"><button onclick="window.close()">← Zavřít</button><span style="color:#666;font-size:13px">'+doc.name+'</span></div><div class="cnt">'+(doc.data.startsWith('data:image')?'<img src="'+doc.data+'" style="max-width:100%;border-radius:8px"/>':'<iframe src="'+doc.data+'" style="width:100%;height:85vh;border:none;border-radius:8px"></iframe>')+'</div></body></html>');w.document.close()}};
@@ -323,17 +325,24 @@ export default function App() {
     <div><style>{S}</style><div className="ts-screen" style={{justifyContent:'flex-start',paddingTop:20}}>
       <div style={{textAlign:'center',flexShrink:0}}><img src="/icon-192.png" width="56" height="56" style={{borderRadius:14,marginBottom:6}} alt=""/><div style={{fontFamily:'var(--fd)',fontSize:20,textTransform:'uppercase'}}>TJ Dynamo</div><div style={{fontFamily:'var(--fd)',fontSize:11,color:'var(--t2)',textTransform:'uppercase',letterSpacing:3}}>Drnholec</div></div>
 
-      {ceDetail?(<div style={{width:'100%',maxWidth:380,marginTop:12}}>
-        <button style={{display:'flex',alignItems:'center',gap:5,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer',marginBottom:10}} onClick={()=>setCeDetail(null)}><Ic.Bk/> Zpět</button>
-        <div style={{background:'var(--cd)',borderRadius:16,padding:16,boxShadow:'0 2px 12px rgba(14,116,144,.08)'}}>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{ceDetail.title}</div>
-          <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>{fd0(ceDetail.date)} · {ceDetail.createdBy||""}</div>
-          {ceDetail.description&&<div style={{fontSize:12,color:'var(--t2)',lineHeight:1.5,marginBottom:10}}>{ceDetail.description}</div>}
-          <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',marginBottom:6}}>Dokumenty / Fotky ({(ceDetail.docs||[]).length})</div>
-          <div className="doc-list">{((D.clubEvents||[]).find(e=>e.id===ceDetail.id)?.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer'}}>⬇</button></div>)}</div>
-          <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToCE(ceDetail.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+      {ceDetail?(()=>{const liveEv=(D.clubEvents||[]).find(e=>e.id===ceDetail.id)||ceDetail; return <div style={{width:'100%',maxWidth:380,marginTop:12}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <button style={{display:'flex',alignItems:'center',gap:5,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setCeDetail(null)}><Ic.Bk/> Zpět</button>
+          <button className="ba" style={{fontSize:10}} onClick={()=>setCeMod({type:"editCE",ev:liveEv})}>✎ Upravit</button>
         </div>
-      </div>)
+        <div style={{background:'var(--cd)',borderRadius:16,padding:16,boxShadow:'0 2px 12px rgba(14,116,144,.08)'}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{liveEv.title}</div>
+          <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>{fd0(liveEv.date)} · {liveEv.createdBy||""}</div>
+          {liveEv.description&&<div style={{fontSize:12,color:'var(--t2)',lineHeight:1.5,marginBottom:10}}>{liveEv.description}</div>}
+          <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',marginBottom:6}}>Dokumenty / Fotky ({(liveEv.docs||[]).length})</div>
+          <div className="doc-list">{(liveEv.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}>
+            <button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button>
+            <button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer'}}>⬇</button>
+            <button onClick={()=>delDocFromCE(liveEv.id,i)} style={{fontSize:10,color:'var(--r)',padding:'4px 8px',background:'rgba(220,38,38,.08)',borderRadius:12,border:'none',cursor:'pointer'}}>✕</button>
+          </div>)}</div>
+          <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToCE(liveEv.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+        </div>
+      </div>})()
 
       :(<><div className="ce-panel" style={{flexShrink:0}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
@@ -367,13 +376,22 @@ export default function App() {
         })}
       </div></>)}
 
-      {ceMod&&<div className="mo" onClick={()=>setCeMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setCeMod(null)}><Ic.XC/></button><div className="mlt">Nová událost klubu</div>
+      {ceMod&&<div className="mo" onClick={()=>setCeMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setCeMod(null)}><Ic.XC/></button>
+        {ceMod?.type==="editCE"?(<><div className="mlt">Upravit událost</div>
+        <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editCE(ceMod.ev.id,{title:f.get('ti'),description:f.get('ds'),createdBy:f.get('fr')})}}>
+        <div className="fg"><label className="fl">Název události</label><input name="ti" className="fi" defaultValue={ceMod.ev.title} required/></div>
+        <div className="fg"><label className="fl">Popis</label><textarea name="ds" className="fi ft2" defaultValue={ceMod.ev.description||""}/></div>
+        <div className="fg"><label className="fl">Autor</label><input name="fr" className="fi" defaultValue={ceMod.ev.createdBy||""} required/></div>
+        <button type="submit" className="fs">Uložit změny</button>
+        </form></>)
+        :(<><div className="mlt">Nová událost klubu</div>
         <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);addCE({title:f.get('ti'),description:f.get('ds'),createdBy:f.get('fr')})}}>
         <div className="fg"><label className="fl">Název události</label><input name="ti" className="fi" required/></div>
         <div className="fg"><label className="fl">Popis</label><textarea name="ds" className="fi ft2"/></div>
         <div className="fg"><label className="fl">Autor</label><input name="fr" className="fi" required/></div>
         <button type="submit" className="fs">Vytvořit událost</button>
-        </form></div></div>}
+        </form></>)}
+      </div></div>}
     </div></div>
   );
 
