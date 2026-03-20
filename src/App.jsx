@@ -190,12 +190,12 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .ctt{font-weight:700;font-size:13px;margin-bottom:2px}.css2{font-size:11px;color:var(--t2)}
 .tg{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase}
 .th{background:var(--gb);color:var(--g)}.ta{background:var(--yb);color:var(--y)}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.st{background:var(--cd);border:none;border-radius:16px;padding:16px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(14,116,144,.06);transition:all .2s;position:relative;overflow:hidden}
-.st::after{content:'';position:absolute;top:0;right:0;width:50px;height:50px;background:var(--ag);border-radius:0 0 0 50px;opacity:.5}
-.st:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(14,116,144,.1)}
-.sn{font-family:var(--fd);font-size:28px;color:var(--ac);line-height:1;margin-bottom:3px;position:relative;z-index:1}
-.sl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:1}
+.sg{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:14px}
+.st{background:var(--cd);border:none;border-radius:12px;padding:10px 6px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9);transition:all .2s;position:relative;overflow:hidden;text-align:center}
+.st::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac);opacity:.15;border-radius:12px 12px 0 0}
+.st:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.sn{font-family:var(--fd);font-size:20px;color:var(--ac);line-height:1;margin-bottom:2px;position:relative;z-index:1}
+.sl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;position:relative;z-index:1;font-weight:700}
 .lb{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;margin-top:4px}
 .pr{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--cd);border:none;border-radius:16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(14,116,144,.05);transition:all .2s}
 .pr:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,116,144,.08)}
@@ -491,59 +491,60 @@ export default function App() {
     const doneMt=isV?(T.meetings||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
     const doneVt=isV?(T.votings||[]).filter(v=>v.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
     const allDone=[...doneM.map(d=>({...d,_k:"match"})),...doneTr.map(d=>({...d,_k:"train"})),...doneMt.map(d=>({...d,_k:"meet"})),...doneVt.map(d=>({...d,_k:"vote"}))].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-    /* Match stats */
     const mR=doneM.filter(m=>m.result);
     let wins=0,draws=0,losses=0,gf=0,ga=0;
     mR.forEach(m=>{const p=m.result.split(/[:\-]/).map(s=>parseInt(s.trim()));if(p.length===2&&!isNaN(p[0])&&!isNaN(p[1])){const isHome=m.location==="Domácí";const our=isHome?p[0]:p[1];const their=isHome?p[1]:p[0];gf+=our;ga+=their;if(our>their)wins++;else if(our===their)draws++;else losses++}});
     const played=wins+draws+losses;
+    const ecs={background:'var(--cd)',borderRadius:14,padding:14,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',cursor:'pointer',transition:'all .2s',borderLeft:`4px solid ${tInfo.color}`};
     return (<div>
-    {/* Header s gradientem */}
-    <div style={{background:`linear-gradient(135deg,${tInfo.color}18,${tInfo.color}08)`,borderRadius:16,padding:16,marginBottom:14,border:`1px solid ${tInfo.color}20`}}>
-      <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:40,height:40,borderRadius:12,background:tInfo.color,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontFamily:'var(--fd)',fontSize:16,fontWeight:900}}>{isV?"V":tInfo.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div><div style={{fontFamily:'var(--fd)',fontSize:17,textTransform:'uppercase',letterSpacing:.5}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
+    {/* Header */}
+    <div style={{background:`linear-gradient(135deg,${tInfo.color}18,${tInfo.color}08)`,borderRadius:14,padding:14,marginBottom:12,border:`1px solid ${tInfo.color}20`}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:36,height:36,borderRadius:10,background:tInfo.color,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontFamily:'var(--fd)',fontSize:14,fontWeight:900}}>{isV?"V":tInfo.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div><div style={{fontFamily:'var(--fd)',fontSize:15,textTransform:'uppercase',letterSpacing:.5}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
     </div>
 
-    {/* Statistické dlaždice */}
-    {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasování</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
-    :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
+    {/* Mini dlaždice */}
+    {isV?(<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasov.</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
+    :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Trénin.</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
 
-    {/* Bilance zápasů - jen pro týmy */}
-    {!isV&&<div style={{marginTop:14,background:'var(--cd)',borderRadius:14,padding:14,boxShadow:'0 2px 10px rgba(0,0,0,.04)'}}>
-      <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:10,display:'flex',alignItems:'center',gap:6}}>⚽ Bilance sezóny</div>
+    {/* Příští zápas - FIRST */}
+    {nxM&&!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div><div style={ecs} onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt" style={{fontSize:14,fontWeight:700}}>vs {nxM.opponent}</div><div className="css2" style={{marginTop:3}}>{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`} style={{fontSize:10,padding:'4px 10px'}}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></div>)}
+
+    {/* Příští trénink - SECOND */}
+    {nxT&&!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div><div style={ecs} onClick={()=>go("trainings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxT.focus}</div><div className="css2" style={{marginTop:3}}>{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div></div>)}
+
+    {/* Výbor - příští schůze */}
+    {nxMt&&isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div style={ecs} onClick={()=>go("meetings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxMt.topic}</div><div className="css2" style={{marginTop:3}}>{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
+
+    {/* Bilance - THIRD */}
+    {!isV&&<div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
+      <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>⚽ Bilance sezóny</div>
       {played>0?<>
-        <div style={{display:'flex',gap:6,marginBottom:10}}>
-          <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#16a34a'}}>{wins}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Výhry</div></div>
-          <div style={{flex:1,background:'rgba(202,138,4,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#ca8a04'}}>{draws}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Remízy</div></div>
-          <div style={{flex:1,background:'rgba(220,38,38,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#dc2626'}}>{losses}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Prohry</div></div>
+        <div style={{display:'flex',gap:5,marginBottom:8}}>
+          <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:10,padding:'8px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#16a34a'}}>{wins}</div><div style={{fontSize:8,color:'var(--t3)',fontWeight:700}}>Výhry</div></div>
+          <div style={{flex:1,background:'rgba(202,138,4,.08)',borderRadius:10,padding:'8px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#ca8a04'}}>{draws}</div><div style={{fontSize:8,color:'var(--t3)',fontWeight:700}}>Remízy</div></div>
+          <div style={{flex:1,background:'rgba(220,38,38,.08)',borderRadius:10,padding:'8px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#dc2626'}}>{losses}</div><div style={{fontSize:8,color:'var(--t3)',fontWeight:700}}>Prohry</div></div>
+          <div style={{flex:1,background:'var(--bg)',borderRadius:10,padding:'8px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:gf>ga?'#16a34a':gf<ga?'#dc2626':'var(--t)'}}>{gf}:{ga}</div><div style={{fontSize:8,color:'var(--t3)',fontWeight:700}}>Skóre</div></div>
         </div>
-        <div style={{display:'flex',gap:6}}>
-          <div style={{flex:1,background:'var(--bg)',borderRadius:10,padding:'8px 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:10,color:'var(--t3)',fontWeight:600}}>Odehráno</span><span style={{fontFamily:'var(--fd)',fontSize:16}}>{played}</span></div>
-          <div style={{flex:1,background:'var(--bg)',borderRadius:10,padding:'8px 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:10,color:'var(--t3)',fontWeight:600}}>Skóre</span><span style={{fontFamily:'var(--fd)',fontSize:16,color:gf>ga?'#16a34a':gf<ga?'#dc2626':'var(--t)'}}>{gf}:{ga}</span></div>
-        </div>
-        {played>0&&<div style={{marginTop:8,height:8,borderRadius:4,overflow:'hidden',display:'flex',background:'var(--bg)'}}>{wins>0&&<div style={{flex:wins,background:'#16a34a',borderRadius:4}}/>}{draws>0&&<div style={{flex:draws,background:'#ca8a04'}}/>}{losses>0&&<div style={{flex:losses,background:'#dc2626',borderRadius:4}}/>}</div>}
-      </>:<div style={{textAlign:'center',padding:10,color:'var(--t3)',fontSize:11}}>Zatím žádné odehrané zápasy. Označte zápas jako dokončený a zadejte výsledek.</div>}
+        <div style={{height:6,borderRadius:3,overflow:'hidden',display:'flex',background:'var(--bg)'}}>{wins>0&&<div style={{flex:wins,background:'#16a34a'}}/>}{draws>0&&<div style={{flex:draws,background:'#ca8a04'}}/>}{losses>0&&<div style={{flex:losses,background:'#dc2626'}}/>}</div>
+      </>:<div style={{textAlign:'center',padding:8,color:'var(--t3)',fontSize:10}}>Zatím žádné odehrané zápasy</div>}
     </div>}
 
-    {/* Příští události */}
-    {nxM&&!isV&&(<div style={{marginTop:14}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div><div className="c2" onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="cr"><div><div className="ctt">vs {nxM.opponent}</div><div className="css2">{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></div>)}
-    {nxT&&!isV&&(<div style={{marginTop:8}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div><div className="c2" onClick={()=>go("trainings")} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div></div>)}
-    {nxMt&&isV&&(<div style={{marginTop:8}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div className="c2" onClick={()=>go("meetings")} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="ctt">{nxMt.topic}</div><div className="css2">{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
-
-    {/* Dokončeno - vždy viditelné */}
-    <div style={{marginTop:16,background:'var(--cd)',borderRadius:14,padding:14,boxShadow:'0 2px 10px rgba(0,0,0,.04)',border:'1px solid rgba(22,163,74,.15)'}}>
-      <div style={{fontSize:11,fontWeight:700,color:'#16a34a',textTransform:'uppercase',letterSpacing:1,marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
-        <span style={{width:22,height:22,borderRadius:'50%',background:'#16a34a',color:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700}}>✓</span>
+    {/* Dokončeno - LAST, vždy viditelné */}
+    <div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',border:'1px solid rgba(22,163,74,.12)'}}>
+      <div style={{fontSize:10,fontWeight:700,color:'#16a34a',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:20,height:20,borderRadius:'50%',background:'#16a34a',color:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>✓</span>
         Dokončeno {allDone.length>0&&<span style={{color:'var(--t3)',fontWeight:400}}>({allDone.length})</span>}
       </div>
-      {allDone.length===0?<div style={{textAlign:'center',padding:'12px 0',color:'var(--t3)',fontSize:11}}>Zatím žádné dokončené události. Označte zápas nebo trénink jako proběhlý.</div>
-      :<>{allDone.slice(0,5).map(d=> <div key={d.id} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 0',borderBottom:'1px solid var(--b)',cursor:'pointer'}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
-          <span style={{width:20,height:20,borderRadius:'50%',background:'rgba(22,163,74,.1)',color:'#16a34a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,flexShrink:0}}>✓</span>
+      {allDone.length===0?<div style={{textAlign:'center',padding:'10px 0',color:'var(--t3)',fontSize:10}}>Zatím žádné dokončené události</div>
+      :<>{allDone.slice(0,5).map(d=> <div key={d.id} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 0',borderBottom:'1px solid var(--b)',cursor:'pointer'}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
+          <span style={{width:18,height:18,borderRadius:'50%',background:'rgba(22,163,74,.1)',color:'#16a34a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,flexShrink:0}}>✓</span>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:12,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d._k==="match"?"vs "+d.opponent:d.focus||d.topic}</div>
-            <div style={{fontSize:10,color:'var(--t3)'}}>{fd(d.date)}{d.result?" · "+d.result:""}</div>
+            <div style={{fontSize:11,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d._k==="match"?"vs "+d.opponent:d.focus||d.topic}</div>
+            <div style={{fontSize:9,color:'var(--t3)'}}>{fd(d.date)}{d.result?" · "+d.result:""}</div>
           </div>
-          <span style={{fontSize:9,color:'var(--t3)',background:'var(--bg)',padding:'2px 8px',borderRadius:8,flexShrink:0}}>{d._k==="match"?"Zápas":d._k==="train"?"Trénink":d._k==="meet"?"Schůze":"Hlasování"}</span>
+          <span style={{fontSize:8,color:'var(--t3)',background:'var(--bg)',padding:'2px 6px',borderRadius:6,flexShrink:0,fontWeight:600}}>{d._k==="match"?"Zápas":d._k==="train"?"Trénink":d._k==="meet"?"Schůze":"Hlasování"}</span>
         </div>)}
-        {allDone.length>5&&<div style={{textAlign:'center',fontSize:11,color:'var(--ac)',padding:8,cursor:'pointer',fontWeight:600}} onClick={()=>go("matches")}>Zobrazit vše →</div>}
+        {allDone.length>5&&<div style={{textAlign:'center',fontSize:10,color:'var(--ac)',padding:6,cursor:'pointer',fontWeight:600}} onClick={()=>go("matches")}>Zobrazit vše →</div>}
       </>}
     </div>
   </div>)};
