@@ -168,9 +168,9 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .rail{width:64px;background:linear-gradient(180deg,#0c2d48 0%,#0a1f33 100%);border-right:none;display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:3px 0 16px rgba(10,31,51,.15)}
 .rail::-webkit-scrollbar{display:none}
 .rdv{width:24px;height:1px;background:rgba(255,255,255,.1);margin:4px 0;flex-shrink:0}
-.ri{width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;color:rgba(255,255,255,.45);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:7.5px;font-weight:600;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.2px}
-.ri:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.08)}
-.ri.a{color:#5ce0f5;background:rgba(92,224,245,.12)}
+.ri{width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;color:var(--team-color,rgba(255,255,255,.5));cursor:pointer;border:none;background:none;font-family:var(--f);font-size:7.5px;font-weight:600;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.2px;opacity:.5}
+.ri:hover{opacity:.8;background:rgba(255,255,255,.06)}
+.ri.a{opacity:1;color:var(--team-color,#5ce0f5);background:rgba(255,255,255,.1);box-shadow:0 0 12px rgba(255,255,255,.05)}
 .ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:#ef4444;border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #0c2d48}
 .rft{margin-top:auto;padding:8px 0;flex-shrink:0;display:flex;flex-direction:column;gap:4px;align-items:center}
 .rft button{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:8px;border-radius:10px;transition:all .2s}
@@ -759,17 +759,17 @@ export default function App() {
   return (
     <div><style>{S}</style>
       <div className="shell">
-        <div className="rail">
+        <div className="rail" style={{"--team-color":tInfo.color}}>
           <div style={{color:tInfo.color,padding:'6px 0 4px',opacity:.9,flexShrink:0}}><Ic.Ball/></div>
           <div className="rdv"/>
-          {nav.map(n=>(<div key={n.k}>{n.dv&&<div className="rdv"/>}<button className={`ri ${pg===n.k?'a':''}`} onClick={()=>go(n.k)}>{n.i}<span>{n.l}</span>{(bg[n.k]||0)>0&&<span className="bd">{bg[n.k]}</span>}</button></div>))}
+          {nav.map(n=>(<div key={n.k}>{n.dv&&<div className="rdv"/>}<button className={`ri ${pg===n.k?'a':''}`} style={pg===n.k?{color:tInfo.color,background:`${tInfo.color}20`}:{}} onClick={()=>go(n.k)}>{n.i}<span>{n.l}</span>{(bg[n.k]||0)>0&&<span className="bd">{bg[n.k]}</span>}</button></div>))}
           <div className="rft">
             <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Změnit tým"><Ic.Grid/></button>
             <button onClick={()=>{setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Odhlásit"><Ic.Out/></button>
           </div>
         </div>
         <div className="cnt">
-          <div className="top"><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div><button className="hb" onClick={()=>{setNO(true);mAR()}}><Ic.Bell/>{uN>0&&<span className="dot"/>}</button></div>
+          <div className="top" style={{background:`linear-gradient(90deg,#0c2d48,${tInfo.color}22)`}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div><button className="hb" onClick={()=>{setNO(true);mAR()}}><Ic.Bell/>{uN>0&&<span className="dot"/>}</button></div>
           <div className="ms">{pages[pg]?pages[pg]():pgHome()}</div>
         </div>
       </div>
