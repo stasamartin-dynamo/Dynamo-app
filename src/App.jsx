@@ -65,12 +65,15 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .pr{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--cd);border:none;border-radius:16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(14,116,144,.05);transition:all .2s}
 .pr:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,116,144,.08)}
 .pnn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--ag);color:var(--ac);border-radius:8px;font-family:var(--fd);font-size:13px}
-.lf{background:linear-gradient(180deg,#15803d,#166534 50%,#14532d);border-radius:var(--rd);padding:16px 12px;margin-bottom:12px;position:relative;min-height:200px;overflow:hidden}
+.lf{background:linear-gradient(180deg,#15803d,#166534 50%,#14532d);border-radius:var(--rd);padding:0;margin-bottom:12px;position:relative;min-height:320px;overflow:hidden;touch-action:none;user-select:none}
 .lf::before{content:'';position:absolute;top:50%;left:10%;right:10%;height:1px;background:rgba(255,255,255,.15)}
+.lf::after{content:'';position:absolute;top:50%;left:50%;width:60px;height:60px;border:1px solid rgba(255,255,255,.12);border-radius:50%;transform:translate(-50%,-50%)}
 .fr{display:flex;justify-content:space-evenly;margin-bottom:16px;position:relative;z-index:1}
-.fp{display:flex;flex-direction:column;align-items:center;gap:3px}
-.fc{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);color:#166534;font-family:var(--fd);font-size:12px;display:flex;align-items:center;justify-content:center}
-.fn{font-size:9px;color:rgba(255,255,255,.85);font-weight:600;text-align:center;max-width:48px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp{display:flex;flex-direction:column;align-items:center;gap:2px;position:absolute;cursor:grab;z-index:2;touch-action:none}
+.fp:active{cursor:grabbing}
+.fc{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);color:#166534;font-family:var(--fd);font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .1s;pointer-events:none}
+.fp:active .fc{transform:scale(1.15)}
+.fn{font-size:8px;color:rgba(255,255,255,.9);font-weight:600;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .lc{display:flex;flex-wrap:wrap;gap:6px}
 .lch{padding:6px 11px;background:var(--bg);border:1.5px solid var(--b2);border-radius:20px;font-size:11px;font-family:var(--f);color:var(--t2);cursor:pointer}
 .lch.s{background:var(--ag);border-color:var(--ac);color:var(--ac)}
@@ -234,6 +237,8 @@ export default function App() {
   const togDone=(kind,evId)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,done:!e.done}:e)})};
   const editEv=(kind,evId,updates)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,...updates,editedBy:me||"?"}:e)});setMod(null)};
   const sLU=(mi,pi)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,lineup:pi}:m)});
+  const sLP=(mi,pos)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,lineupPos:{...(m.lineupPos||{}),...pos}}:m)});
+  const pName=(p)=>{const parts=p.name.split(' ');return parts.length>1?parts[0]+' '+parts[parts.length-1][0]+'.':parts[0]};
   const sR=(mi,r)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,result:r}:m)});
   const tPN=i=>saveT({...T,news:T.news.map(a=>a.id===i?{...a,pinned:!a.pinned}:a)});
   const apA=i=>saveT({...T,absences:T.absences.map(a=>a.id===i?{...a,status:"approved"}:a)});
@@ -288,8 +293,15 @@ export default function App() {
     {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v)}}}>Uložit</button></div>}
     {m.result&&<div style={{background:'var(--ag)',borderRadius:'var(--rd)',padding:12,marginBottom:12,textAlign:'center'}}><div style={{fontSize:10,color:'var(--t3)',textTransform:'uppercase'}}>Výsledek</div><div style={{fontFamily:'var(--fd)',fontSize:28,color:'var(--ac)'}}>{m.result}</div></div>}
     <div className="lb">Sestava</div>
-    <div className="lc" style={{marginBottom:12}}>{T.players.map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{p.name.split(' ')[0]}</button>)}</div>
-    {(m.lineup||[]).length>0&&<div className="lf">{(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const R=({a})=>a.length>0? <div className="fr">{a.map(p=> <div className="fp" key={p.id}><div className="fc">{p.name.split(' ').map(w=>w[0]).join('')}</div><div className="fn">{p.name.split(' ')[0]}</div></div>)}</div>:null; return (<><R a={lp.filter(p=>p.position==="Útočník")}/><R a={lp.filter(p=>p.position==="Záložník")}/><R a={lp.filter(p=>p.position==="Obránce")}/><R a={lp.filter(p=>p.position==="Brankář")}/></>)})()}</div>}
+    <div className="lc" style={{marginBottom:12}}>{T.players.map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{pName(p)}</button>)}</div>
+    {(m.lineup||[]).length>0&&(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const pos=m.lineupPos||{};
+      const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];const n=lp.length;const cols=Math.ceil(Math.sqrt(n));const row=Math.floor(i/cols);const col=i%cols;const rows=Math.ceil(n/cols);return{x:15+col*(70/(cols-1||1)),y:10+row*(80/(rows-1||1))}};
+      const onDrag=(pid,e)=>{const el=e.currentTarget.closest('.lf');if(!el)return;const r=el.getBoundingClientRect();const getXY=(ev)=>{const cx=ev.touches?ev.touches[0].clientX:ev.clientX;const cy=ev.touches?ev.touches[0].clientY:ev.clientY;return{x:Math.max(5,Math.min(95,((cx-r.left)/r.width)*100)),y:Math.max(3,Math.min(95,((cy-r.top)/r.height)*100))}};
+        const fp=e.currentTarget;fp.style.zIndex=10;
+        const mv=(ev)=>{ev.preventDefault();const{x,y}=getXY(ev);fp.style.left=x+'%';fp.style.top=y+'%';fp.style.transform='translate(-50%,-50%)'};
+        const up=(ev)=>{const{x,y}=getXY(ev.changedTouches?ev.changedTouches[0]:ev);fp.style.zIndex=2;sLP(m.id,{[pid]:{x,y}});document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up)};
+        document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up)};
+      return <div className="lf">{lp.map((p,i)=>{const{x,y}=defPos(p,i);return <div className="fp" key={p.id} style={{left:x+'%',top:y+'%',transform:'translate(-50%,-50%)'}} onMouseDown={e=>onDrag(p.id,e)} onTouchStart={e=>onDrag(p.id,e)}><div className="fc">{p.name.split(' ').map(w=>w[0]).join('')}</div><div className="fn">{pName(p)}</div></div>})}</div>})()}
     <AttBlock kind="matches" ev={m}/>
     <EvMeta ev={m}/>
   </div>)};const upcoming=T.matches.filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date));const past=T.matches.filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)); return (<div><div className="ph"><div className="pt">Zápasy</div><button className="ba" onClick={()=>setMod("aM")}><Ic.Plus/> Přidat</button></div>
