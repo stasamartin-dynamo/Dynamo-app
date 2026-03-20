@@ -374,10 +374,10 @@ export default function App() {
         <div className="ts-dot" style={{background:d.t.color}}>{d.icon}</div>
         <div><div className="ts-name">{d.t.name}</div><div className="ts-sub"><span>👥 {d.cnt}</span>{d.evCnt>0&&<span>📅 {d.evCnt}</span>}</div></div>
       </button>;
-      const SmBtn=({d})=><button style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:'var(--cd)',border:'none',borderRadius:12,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 8px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left',width:'100%'}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
+      const SmBtn=({d})=><button style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:'var(--cd)',border:'none',borderRadius:14,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 10px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left',width:'100%',flex:1}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
         <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:d.t.color}}/>
-        <div style={{width:28,height:28,borderRadius:8,background:d.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:12,color:'#fff',fontWeight:900,flexShrink:0}}>{d.icon}</div>
-        <div><div style={{fontWeight:700,fontSize:11}}>{d.t.name}</div><div style={{fontSize:8,color:'var(--t3)'}}>{d.cnt} {d.lbl}</div></div>
+        <div style={{width:32,height:32,borderRadius:10,background:d.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:14,color:'#fff',fontWeight:900,flexShrink:0}}>{d.icon}</div>
+        <div><div style={{fontWeight:700,fontSize:12}}>{d.t.name}</div><div style={{fontSize:9,color:'var(--t3)'}}>{d.cnt} {d.lbl}</div></div>
       </button>;
       return <div style={{width:'100%',maxWidth:380,flexShrink:0}}>
         {rows.map((row,ri)=><div key={ri} className="ts-grid" style={{marginBottom:8}}>{row.map(d=><SqBtn key={d.t.id} d={d}/>)}</div>)}
@@ -387,7 +387,7 @@ export default function App() {
             <div className="ts-dot" style={{background:aTym.t.color}}>A</div>
             <div><div className="ts-name">{aTym.t.name}</div><div className="ts-sub"><span>👥 {aTym.cnt}</span><span>📅 {aTym.evCnt}</span></div></div>
           </button>
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          <div style={{display:'flex',flexDirection:'column',gap:8,minHeight:0}}>
             <SmBtn d={vybor}/>
             <SmBtn d={treneri}/>
           </div>
