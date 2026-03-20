@@ -615,10 +615,12 @@ export default function App() {
     {paVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{v.topic}</div><div className="css2">{fd(v.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>})}
   </div>)};
 
+  const [plTab,setPlTab]=useState("list");
   const getStats=(nm)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[nm]).length;const ta=dt.filter(t=>(t.attendance||{})[nm]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
 
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
-    {T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
+    <div style={{display:'flex',gap:6,marginBottom:12}}>{[["list","Seznam"],["stats","Statistiky"]].map(([k,l])=> <button key={k} onClick={()=>setPlTab(k)} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,fontFamily:'var(--f)',cursor:'pointer',border:plTab===k?'1.5px solid var(--ac)':'1.5px solid var(--b2)',background:plTab===k?'var(--ag)':'var(--bg)',color:plTab===k?'var(--ac)':'var(--t3)'}}>{l}</button>)}</div>
+    {plTab==="list"&&T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
       <div className="ca">{p.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontWeight:600,fontSize:12}}>{p.name}</div>
@@ -632,18 +634,23 @@ export default function App() {
       </div>
       <div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eP",ev:p})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button></div>
     </div>)}
-    {T.players.length>0&&<><div className="lb" style={{marginTop:16}}>Statistiky účasti</div>
-    <div style={{fontSize:10,color:'var(--t3)',marginBottom:6}}>Pouze dokončené události (✓ Proběhlo)</div>
-    <div style={{overflowX:'auto',background:'var(--cd)',borderRadius:12,boxShadow:'0 2px 8px rgba(14,116,144,.05)'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
-      <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>%</th></tr></thead>
-      <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);const pct=s.totalAll>0?Math.round(s.total/s.totalAll*100):0;return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
-        <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><div style={{width:'100%',height:16,background:'var(--bg)',borderRadius:8,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:pct>=75?'var(--g)':pct>=50?'var(--ac)':pct>=25?'var(--y)':'var(--r)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:3}}><span style={{fontSize:8,fontWeight:700,color:'#fff'}}>{pct>10?pct+'%':''}</span></div></div></td>
-      </tr>})}</tbody>
-    </table></div></>}
+    {plTab==="stats"&&(<div>
+      <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>Pouze dokončené události (✓ Proběhlo)</div>
+      <div style={{overflowX:'auto',background:'var(--cd)',borderRadius:12,boxShadow:'0 2px 8px rgba(14,116,144,.05)'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+        <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>%</th></tr></thead>
+        <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);const pct=s.totalAll>0?Math.round(s.total/s.totalAll*100):0;return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
+          <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
+          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
+          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
+          <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
+          <td style={{padding:'7px 6px',textAlign:'center'}}><div style={{width:'100%',height:16,background:'var(--bg)',borderRadius:8,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:pct>=75?'var(--g)':pct>=50?'var(--ac)':pct>=25?'var(--y)':'var(--r)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:3}}><span style={{fontSize:8,fontWeight:700,color:'#fff'}}>{pct>10?pct+'%':''}</span></div></div></td>
+        </tr>})}</tbody>
+      </table></div>
+      <div style={{marginTop:10,padding:10,background:'var(--cd)',borderRadius:'var(--rd)'}}>
+        <div style={{fontSize:10,fontWeight:600,color:'var(--t3)',marginBottom:4}}>Příspěvky</div>
+        <div style={{display:'flex',gap:16}}><span style={{fontSize:12,color:'var(--g)',fontWeight:700}}>✓ {T.players.filter(p=>p.feePaid).length} zaplaceno</span><span style={{fontSize:12,color:'var(--r)',fontWeight:700}}>✗ {T.players.filter(p=>!p.feePaid).length} nezaplaceno</span></div>
+      </div>
+    </div>)}
   </div>);
 
   const pgCt=()=>(<div><div className="ph"><div className="pt">{isV?"Členové výboru":"Adresář"}</div><button className="ba" onClick={()=>setMod("aCt")}><Ic.Plus/></button></div>
