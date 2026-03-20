@@ -226,13 +226,13 @@ export default function App() {
     {nxT&&!isV&&(<><div className="lb" style={{marginTop:8}}>Příští trénink</div><div className="c2" onClick={()=>go("trainings")}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time}</div></div></>)}
   </div>);
 
-  const pgMatches=()=>{if(selM){const m=selM; return (<div>
+  const pgMatches=()=>{if(selM){const m=T.matches.find(x=>x.id===selM.id)||selM; return (<div>
     <button style={{display:'flex',alignItems:'center',gap:5,marginBottom:12,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setSelM(null)}><Ic.Bk/> Zpět</button>
     <div className="pt" style={{marginBottom:8}}>vs {m.opponent}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time} · {m.location}</div>
-    {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v);setSelM({...m,result:v})}}}>Uložit</button></div>}
+    {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v)}}}>Uložit</button></div>}
     {m.result&&<div style={{background:'var(--ag)',borderRadius:'var(--rd)',padding:12,marginBottom:12,textAlign:'center'}}><div style={{fontSize:10,color:'var(--t3)',textTransform:'uppercase'}}>Výsledek</div><div style={{fontFamily:'var(--fd)',fontSize:28,color:'var(--ac)'}}>{m.result}</div></div>}
     <div className="lb">Sestava</div>
-    <div className="lc" style={{marginBottom:12}}>{T.players.map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl);setSelM({...m,lineup:nl})}}>{p.number} {p.name.split(' ')[0]}</button>)}</div>
+    <div className="lc" style={{marginBottom:12}}>{T.players.map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{p.number} {p.name.split(' ')[0]}</button>)}</div>
     {(m.lineup||[]).length>0&&<div className="lf">{(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const R=({a})=>a.length>0? <div className="fr">{a.map(p=> <div className="fp" key={p.id}><div className="fc">{p.number}</div><div className="fn">{p.name.split(' ')[0]}</div></div>)}</div>:null; return (<><R a={lp.filter(p=>p.position==="Útočník")}/><R a={lp.filter(p=>p.position==="Záložník")}/><R a={lp.filter(p=>p.position==="Obránce")}/><R a={lp.filter(p=>p.position==="Brankář")}/></>)})()}</div>}
     <AttBlock kind="matches" ev={m}/>
   </div>)} return (<div><div className="ph"><div className="pt">Zápasy</div><button className="ba" onClick={()=>setMod("aM")}><Ic.Plus/> Přidat</button></div>
@@ -240,7 +240,7 @@ export default function App() {
     {T.matches.filter(m=>m.result).length>0&&<div className="lb" style={{marginTop:12}}>Odehrané</div>}
     {T.matches.filter(m=>m.result).map(m=> <div className="c2" key={m.id} onClick={()=>setSelM(m)}><div className="cr"><div><div className="ctt">vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.result}</div></div><span className="tg th">{m.type}</span></div></div>)}</div>)};
 
-  const pgTr=()=>{if(selM){const t=selM; return (<div>
+  const pgTr=()=>{if(selM){const t=T.trainings.find(x=>x.id===selM.id)||selM; return (<div>
     <button style={{display:'flex',alignItems:'center',gap:5,marginBottom:12,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setSelM(null)}><Ic.Bk/> Zpět</button>
     <div className="pt" style={{marginBottom:8}}>{t.focus}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(t.date)} · {t.time} · {t.duration} · {t.location}</div>
     {t.notes&&<div style={{fontSize:12,color:'var(--t2)',marginBottom:12,fontStyle:'italic'}}>{t.notes}</div>}
@@ -248,12 +248,12 @@ export default function App() {
   </div>)} return (<div><div className="ph"><div className="pt">Tréninky</div><button className="ba" onClick={()=>setMod("aT")}><Ic.Plus/></button></div>
     {T.trainings.sort((a,b)=>a.date.localeCompare(b.date)).map(t=> <div className="c2" key={t.id} onClick={()=>setSelM(t)}><div className="cr"><div><div className="ctt">{t.focus}</div><div className="css2">{fd(t.date)} · {t.time} · {t.duration}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("trainings",t.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>Účast: {names.filter(n=>(t.attendance||{})[n]).length}/{names.length}</div></div>)}</div>)};
 
-  const pgMeetings=()=>{if(selMt){const m=selMt; return (<div>
+  const pgMeetings=()=>{if(selMt){const m=T.meetings.find(x=>x.id===selMt.id)||selMt; return (<div>
     <button style={{display:'flex',alignItems:'center',gap:5,marginBottom:12,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setSelMt(null)}><Ic.Bk/> Zpět</button>
     <div className="pt" style={{marginBottom:8}}>{m.topic}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time} · {m.location}</div>
     <div className="lb">Dokumenty</div>
-    <div className="doc-list">{(m.docs||[]).map((d,i)=> <div className="doc-item" key={i}><Ic.Doc/> {d.name}</div>)}</div>
-    <div style={{marginTop:8}}><input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" id={`doc-${m.id}`} style={{fontSize:11,color:'var(--t2)'}}/><button className="ba" style={{marginTop:6,fontSize:10}} onClick={()=>{const f=document.getElementById(`doc-${m.id}`).files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result});setSelMt({...m,docs:[...(m.docs||[]),{name:f.name,data:ev.target.result}]})};r.readAsDataURL(f)}}>Nahrát dokument</button></div>
+    <div className="doc-list">{(m.docs||[]).map((d,i)=> <a key={i} href={d.data} download={d.name} className="doc-item" style={{cursor:'pointer',textDecoration:'none'}}><Ic.Doc/> {d.name}</a>)}</div>
+    <div style={{marginTop:8}}><input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" id={`doc-${m.id}`} style={{fontSize:11,color:'var(--t2)'}}/><button className="ba" style={{marginTop:6,fontSize:10}} onClick={()=>{const f=document.getElementById(`doc-${m.id}`).files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f)}}>Nahrát dokument</button></div>
     <AttBlock kind="meetings" ev={m}/>
   </div>)} return (<div><div className="ph"><div className="pt">Schůze výboru</div><button className="ba" onClick={()=>setMod("aMt")}><Ic.Plus/> Nová</button></div>
     {T.meetings.length===0&&<div className="es"><p>Žádné schůze</p></div>}
