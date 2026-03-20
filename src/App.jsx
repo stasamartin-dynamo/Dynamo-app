@@ -1,4 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBdsLOcn3E18rWS-KiiPi1J3P5jahfA3Xk",
+  authDomain: "dynamo-drnholec.firebaseapp.com",
+  projectId: "dynamo-drnholec",
+  storageBucket: "dynamo-drnholec.firebasestorage.app",
+  messagingSenderId: "442943905801",
+  appId: "1:442943905801:web:401141c8cd64a7efa718d8"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#7c3aed",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#ca8a04",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
 const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[]});
@@ -10,8 +23,8 @@ DEF.teams["a-tym"].news=[{id:"nw1",date:"2026-03-18T10:30:00",from:"Trenér",tit
 DEF.teams["mladsi-pripravka"].players=[{id:"p1",name:"Jakub Malý",number:7,position:"Útočník",birthYear:2017},{id:"p2",name:"Filip Veselý",number:3,position:"Obránce",birthYear:2017}];
 DEF.teams["vybor"].contacts=[{id:"c1",name:"Karel Předseda",relation:"Předseda",phone:"+420 777 111 000",email:"karel@dynamo.cz"},{id:"c2",name:"Jana Pokladní",relation:"Pokladní",phone:"+420 608 222 000",email:"jana@dynamo.cz"}];
 const Ic={Home:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,Cal:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,Ppl:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,Cup:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M18 2H6v7a6 6 0 0012 0V2z"/></svg>,Cam:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,Chat:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,XC:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,X:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,Plus:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,Bk:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>,Chk:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>,Del:()=><svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,Pin:()=><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>,Out:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,Bell:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,Book:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>,Chart:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,Send:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,News:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>,Ball:()=><svg width="28" height="28" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#0e7490" strokeWidth="4"/><polygon points="50,22 61,34 57,48 43,48 39,34" fill="#0e7490"/><polygon points="28,56 25,42 36,34 44,44 38,56" fill="#0e7490"/><polygon points="72,56 75,42 64,34 56,44 62,56" fill="#0e7490"/><polygon points="36,72 42,60 58,60 64,72 50,80" fill="#0e7490"/></svg>,Grid:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,Meet:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,Doc:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>};
-const LD=async()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):DEF}catch{return DEF}};
-const SV=async d=>{try{localStorage.setItem(SK,JSON.stringify(d))}catch{}};
+const LD=async()=>{return DEF};
+const SV=async d=>{try{await setDoc(doc(db,"app","data"),d)}catch(e){console.error("Save error:",e)}};
 const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;500;700&family=Archivo+Black&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#daf0f7;--bg2:#c5e8f2;--bg3:#b0dcea;--cd:#ffffff;--cd2:#eef8fc;--ac:#1a8aab;--ac2:#15728e;--ag:rgba(26,138,171,.12);--g:#16a34a;--gb:rgba(22,163,74,.1);--r:#dc2626;--rb2:rgba(220,38,38,.1);--y:#ca8a04;--yb:rgba(202,138,4,.1);--o:#ea580c;--p:#7c3aed;--t:#0f2b3d;--t2:#3b6b82;--t3:#6a9bb2;--b:#b0dcea;--b2:#8ecadb;--rd:14px;--rs:10px;--f:'DM Sans',sans-serif;--fd:'Archivo Black',sans-serif}
@@ -132,7 +145,13 @@ export default function App() {
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
   const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const ce=useRef(null);
 
-  useEffect(()=>{LD().then(d=>{setD(d);setOk(true)})},[]);
+  useEffect(()=>{
+    const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
+      if(snap.exists()){setD(snap.data());setOk(true)}
+      else{setDoc(doc(db,"app","data"),DEF).then(()=>{setD(DEF);setOk(true)})}
+    },(err)=>{console.error(err);setD(DEF);setOk(true)});
+    return ()=>unsub();
+  },[]);
   const save=useCallback(async nd=>{setD(nd);await SV(nd)},[]);
   useEffect(()=>{if(pg==="chat")ce.current?.scrollIntoView({behavior:'smooth'})},[D,pg]);
 
