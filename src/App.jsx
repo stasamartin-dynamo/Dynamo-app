@@ -313,9 +313,9 @@ export default function App() {
   const cEvents=(D.clubEvents||[]).sort((a,b)=>b.date.localeCompare(a.date));
   const addCE=(ev)=>{save({...D,clubEvents:[...(D.clubEvents||[]),{...ev,id:"ce_"+uid(),date:now(),docs:[]}]});setCeMod(null)};
   const editCE=(ceId,updates)=>{save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,...updates}:e)});setCeMod(null)};
-  const delCE=(id)=>save({...D,clubEvents:(D.clubEvents||[]).filter(e=>e.id!==id)});
+  const delCE=(id)=>{if(!window.confirm("Opravdu chcete odstranit událost?"))return;save({...D,clubEvents:(D.clubEvents||[]).filter(e=>e.id!==id)})};
   const addDocToCE=(ceId,doc)=>save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:[...(e.docs||[]),doc]}:e)});
-  const delDocFromCE=(ceId,docIdx)=>save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:(e.docs||[]).filter((_,i)=>i!==docIdx)}:e)});
+  const delDocFromCE=(ceId,docIdx)=>{if(!window.confirm("Opravdu chcete odstranit soubor?"))return;save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:(e.docs||[]).filter((_,i)=>i!==docIdx)}:e)});};
   const fd0=d=>{try{return new Date(d.includes?.('T')?d:d+"T00:00:00").toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'})}catch{return d}};
   const dlDoc0=(doc)=>{try{const parts=doc.data.split(',');const mime=parts[0].match(/:(.*?);/)[1];const bin=atob(parts[1]);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);const blob=new Blob([arr],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=doc.name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}catch(e){console.error(e)}};
   const openDoc0=(doc)=>{const w=window.open('','_blank');if(w){w.document.write('<!DOCTYPE html><html><head><title>'+doc.name+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:sans-serif;background:#f0f0f0}.bar{padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:12px;align-items:center;position:sticky;top:0;z-index:10}.bar button{color:#1a8aab;font-weight:600;font-size:14px;background:none;border:none;cursor:pointer}.cnt{padding:16px;text-align:center}</style></head><body><div class="bar"><button onclick="window.close()">← Zavřít</button><span style="color:#666;font-size:13px">'+doc.name+'</span></div><div class="cnt">'+(doc.data.startsWith('data:image')?'<img src="'+doc.data+'" style="max-width:100%;border-radius:8px"/>':'<iframe src="'+doc.data+'" style="width:100%;height:85vh;border:none;border-radius:8px"></iframe>')+'</div></body></html>');w.document.close()}};
@@ -426,7 +426,7 @@ export default function App() {
   const fd=d=>{try{return new Date(d.includes?.('T')?d:d+"T00:00:00").toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'})}catch{return d}};
   const ts=d=>{try{return new Date(d).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}catch{return''}};
   const go=p=>{setPg(p);setSelM(null);setSelMt(null);setSelVt(null);cB(p)};
-  const del=(k,i)=>saveT({...T,[k]:(T[k]||[]).filter(x=>x.id!==i)});
+  const del=(k,i)=>{if(!window.confirm("Opravdu chcete odstranit?"))return;saveT({...T,[k]:(T[k]||[]).filter(x=>x.id!==i)});};
 
   const addM=m=>{const n=nt("Zápas: "+m.opponent,"matches");saveT({...T,...n,matches:[...T.matches,{...m,id:"m_"+uid(),result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:me||"?",editedBy:""}]});setMod(null)};
   const addTr=t=>{const n=nt("Trénink: "+t.focus,"trainings");saveT({...T,...n,trainings:[...T.trainings,{...t,id:"t_"+uid(),attendance:{},excuses:{},done:false,createdBy:me||"?",editedBy:""}]});setMod(null)};
@@ -565,7 +565,7 @@ export default function App() {
     {upcoming.length>0&&<div className="lb">Nadcházející</div>}
     {upcoming.map(m=> <div className="c2" key={m.id} onClick={()=>setSelM({id:m.id})}><div className="cr"><div><div className="ctt">vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.time}{m.meetTime&&" · sraz "+m.meetTime}</div></div><div style={{display:'flex',gap:5}}><span className={`tg ${m.location==="Domácí"?"th":"ta"}`}>{m.location==="Domácí"?"Doma":"Venku"}</span><button className="ib d" onClick={e=>{e.stopPropagation();del("matches",m.id)}}><Ic.Del/></button></div></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(m.attendance||{})[n]).length} · ✗ {names.filter(n=>(m.excuses||{})[n]).length} · ? {names.length-names.filter(n=>(m.attendance||{})[n]).length-names.filter(n=>(m.excuses||{})[n]).length}</div></div>)}
     {past.length>0&&<div className="lb" style={{marginTop:12}}>Proběhlo</div>}
-    {past.map(m=> <div className="c2" key={m.id} onClick={()=>setSelM({id:m.id})} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.result||m.time}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>)}</div>)};
+    {past.map(m=> <div className="c2" key={m.id} onClick={()=>setSelM({id:m.id})} style={{opacity:.85}}><div className="cr"><div><div className="ctt" style={{}}><span style={{color:'#16a34a',fontWeight:700,marginRight:4}}>✓</span>vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.result||m.time}</div></div><span style={{background:'#16a34a',color:'#fff',padding:'3px 10px',borderRadius:12,fontSize:11,fontWeight:700}}>✓ Hotovo</span></div></div>)}</div>)};
 
   const pgTr=()=>{const selTr=selM?T.trainings.find(x=>x.id===(selM.id||selM)):null;if(selTr){const t=selTr; return (<div>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -583,7 +583,7 @@ export default function App() {
     {upTr.length>0&&<div className="lb">Nadcházející</div>}
     {upTr.map(t=> <div className="c2" key={t.id} onClick={()=>setSelM({id:t.id})}><div className="cr"><div><div className="ctt">{t.focus}</div><div className="css2">{fd(t.date)} · {t.time} · {t.duration}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("trainings",t.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(t.attendance||{})[n]).length} · ✗ {names.filter(n=>(t.excuses||{})[n]).length}</div></div>)}
     {paTr.length>0&&<div className="lb" style={{marginTop:12}}>Proběhlo</div>}
-    {paTr.map(t=> <div className="c2" key={t.id} onClick={()=>setSelM({id:t.id})} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{t.focus}</div><div className="css2">{fd(t.date)} · {t.time}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>)}
+    {paTr.map(t=> <div className="c2" key={t.id} onClick={()=>setSelM({id:t.id})} style={{opacity:.85}}><div className="cr"><div><div className="ctt" style={{}}><span style={{color:'#16a34a',fontWeight:700,marginRight:4}}>✓</span>{t.focus}</div><div className="css2">{fd(t.date)} · {t.time}</div></div><span style={{background:'#16a34a',color:'#fff',padding:'3px 10px',borderRadius:12,fontSize:11,fontWeight:700}}>✓ Hotovo</span></div></div>)}
   </div>)};
 
   const pgMeetings=()=>{if(selMt){const m=T.meetings.find(x=>x.id===selMt.id)||selMt; return (<div>
@@ -605,7 +605,7 @@ export default function App() {
     {upMt.length>0&&<div className="lb">Nadcházející</div>}
     {upMt.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)}><div className="cr"><div><div className="ctt">{m.topic}</div><div className="css2">{fd(m.date)} · {m.time} · {m.location}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("meetings",m.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(m.attendance||{})[n]).length} · Docs: {(m.docs||[]).length}</div></div>)}
     {paMt.length>0&&<div className="lb" style={{marginTop:12}}>Proběhlo</div>}
-    {paMt.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{m.topic}</div><div className="css2">{fd(m.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>)}
+    {paMt.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)} style={{opacity:.85}}><div className="cr"><div><div className="ctt" style={{}}><span style={{color:'#16a34a',fontWeight:700,marginRight:4}}>✓</span>{m.topic}</div><div className="css2">{fd(m.date)}</div></div><span style={{background:'#16a34a',color:'#fff',padding:'3px 10px',borderRadius:12,fontSize:11,fontWeight:700}}>✓ Hotovo</span></div></div>)}
   </div>)};
 
 
@@ -711,7 +711,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
     {upVt.length>0&&<div className="lb">Aktivní</div>}
     {upVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)}><div className="cr"><div><div className="ctt">{v.topic}</div><div className="css2">{fd(v.date)}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("votings",v.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {members.filter(n=>vts[n]==="pro").length} Pro · ✗ {members.filter(n=>vts[n]==="proti").length} Proti · — {members.filter(n=>vts[n]==="zdrzel").length} Zdržel</div></div>})}
     {paVt.length>0&&<div className="lb" style={{marginTop:12}}>Ukončená</div>}
-    {paVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{v.topic}</div><div className="css2">{fd(v.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>})}
+    {paVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)} style={{opacity:.85}}><div className="cr"><div><div className="ctt" style={{}}><span style={{color:'#16a34a',fontWeight:700,marginRight:4}}>✓</span>{v.topic}</div><div className="css2">{fd(v.date)}</div></div><span style={{background:'#16a34a',color:'#fff',padding:'3px 10px',borderRadius:12,fontSize:11,fontWeight:700}}>✓ Hotovo</span></div></div>})}
   </div>)};
 
   const getStats=(nm)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[nm]).length;const ta=dt.filter(t=>(t.attendance||{})[nm]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
@@ -771,7 +771,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
 
   const pgChat=()=>(<div className="cw"><div className="ph"><div className="pt">Chat</div></div>
     {!me? <div style={{padding:20,textAlign:'center'}}><div style={{color:'var(--t2)',fontSize:13,marginBottom:10}}>Zadejte jméno</div><div style={{display:'flex',gap:8,maxWidth:260,margin:'0 auto'}}><input className="fi" placeholder="Jméno" id="cn"/><button className="ba" onClick={()=>{const v=document.getElementById('cn').value;if(v)setMe(v)}}>OK</button></div></div>
-    :<><div className="cmg">{T.chat.map(msg=> <div className={`cbb ${msg.from===me?'me':'ot'}`} key={msg.id}><div className="cin"><div className="cfr">{msg.from}</div>{msg.text}<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:3}}><span className="cti">{ts(msg.ts)}</span><button onClick={()=>{saveT({...T,chat:T.chat.filter(c=>c.id!==msg.id)})}} style={{background:'none',border:'none',color:'var(--r)',cursor:'pointer',padding:'2px 6px',fontSize:10,fontFamily:'var(--f)',opacity:.7}}>✕ smazat</button></div></div></div>)}<div ref={ce}/></div>
+    :<><div className="cmg">{T.chat.map(msg=> <div className={`cbb ${msg.from===me?'me':'ot'}`} key={msg.id}><div className="cin"><div className="cfr">{msg.from}</div>{msg.text}<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:3}}><span className="cti">{ts(msg.ts)}</span><button onClick={()=>{if(!window.confirm("Smazat zprávu?"))return;saveT({...T,chat:T.chat.filter(c=>c.id!==msg.id)})}} style={{background:'none',border:'none',color:'var(--r)',cursor:'pointer',padding:'2px 6px',fontSize:10,fontFamily:'var(--f)',opacity:.7}}>✕ smazat</button></div></div></div>)}<div ref={ce}/></div>
     <div className="cip"><input value={ci} onChange={e=>setCi(e.target.value)} placeholder="Zpráva..." onKeyDown={e=>{if(e.key==='Enter')sChat(ci,me)}}/><button className="csb" onClick={()=>sChat(ci,me)}><Ic.Send/></button></div></>}</div>);
 
   const pgAbs=()=>(<div><div className="ph"><div className="pt">Omluvenky</div><button className="ba" onClick={()=>setMod("aAb")}><Ic.Plus/></button></div>
