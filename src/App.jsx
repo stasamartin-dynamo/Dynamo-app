@@ -44,6 +44,27 @@ DEF.teams["mladsi-zaci"].matches=[
 {id:"mzm8",date:"2026-06-06",time:"10:00",opponent:"TJ Sokol Hlohovec",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"mzm0",date:"2026-03-28",time:"00:00",opponent:"SDM Aligators/Krumvíř",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""}
 ];
+DEF.teams["starsi-zaci"].players=[
+{id:"sz1",name:"Sofie Lukáčová",number:0,position:"",birthYear:2010},
+{id:"sz2",name:"Lukáš Lečbych",number:0,position:"",birthYear:2011},
+{id:"sz3",name:"Sára Lišková",number:0,position:"",birthYear:2011},
+{id:"sz4",name:"Marek Polák",number:0,position:"",birthYear:2011},
+{id:"sz5",name:"Vojtěch Přeslička",number:0,position:"",birthYear:2011},
+{id:"sz6",name:"Jan Bošiak",number:0,position:"",birthYear:2012},
+{id:"sz7",name:"Prokop Polepil",number:0,position:"",birthYear:2012},
+{id:"sz8",name:"Jakub Přeslička",number:0,position:"",birthYear:2012},
+{id:"sz9",name:"Dominik Woznica",number:0,position:"",birthYear:2012},
+{id:"sz10",name:"Dmytro Mula",number:0,position:"",birthYear:2012},
+{id:"sz11",name:"Adam Feitl",number:0,position:"",birthYear:2013},
+{id:"sz12",name:"Ondřej Kocman",number:0,position:"",birthYear:2013},
+{id:"sz13",name:"Dmytro Mula",number:0,position:"",birthYear:2012},
+{id:"sz14",name:"Gópal Rubina",number:0,position:"",birthYear:2013},
+{id:"sz15",name:"Michael Lípa",number:0,position:"",birthYear:2013},
+{id:"sz16",name:"Josef Grbavčic",number:0,position:"",birthYear:2014},
+{id:"sz17",name:"Dominik Staša",number:0,position:"",birthYear:2014},
+{id:"sz18",name:"Šimon Polepil",number:0,position:"",birthYear:2015},
+{id:"sz19",name:"Antonín Přeslička",number:0,position:"",birthYear:2014}
+];
 DEF.teams["starsi-zaci"].matches=[
 {id:"szm1",date:"2026-03-22",time:"12:00",opponent:"SDM Valtice/Břeclav",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"szm2",date:"2026-04-01",time:"18:00",opponent:"TJ Sokol Pohořelice",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
