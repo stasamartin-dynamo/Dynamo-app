@@ -165,22 +165,23 @@ const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;
 :root{--bg:#daf0f7;--bg2:#c5e8f2;--bg3:#b0dcea;--cd:#ffffff;--cd2:#eef8fc;--ac:#1a8aab;--ac2:#15728e;--ag:rgba(26,138,171,.12);--g:#16a34a;--gb:rgba(22,163,74,.1);--r:#dc2626;--rb2:rgba(220,38,38,.1);--y:#ca8a04;--yb:rgba(202,138,4,.1);--o:#ea580c;--p:#7c3aed;--t:#0f2b3d;--t2:#3b6b82;--t3:#6a9bb2;--b:#b0dcea;--b2:#8ecadb;--rd:14px;--rs:10px;--f:'DM Sans',sans-serif;--fd:'Archivo Black',sans-serif}
 body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden}
 .shell{display:flex;height:100vh;max-width:720px;margin:0 auto;background:var(--bg)}
-.rail{width:82px;background:#ffffff;border-right:1px solid rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:2px 0 12px rgba(0,0,0,.04)}
+.rail{width:82px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);border-right:1px solid rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:2px 0 16px rgba(0,0,0,.06)}
 .rail::-webkit-scrollbar{display:none}
-.rdv{width:28px;height:1px;background:rgba(0,0,0,.08);margin:4px 0;flex-shrink:0}
-.ri{width:70px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;color:var(--team-color,#6a9bb2);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:10.5px;font-weight:700;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.3px;opacity:.4}
-.ri:hover{opacity:.7;background:rgba(0,0,0,.03)}
-.ri svg,.ri img{transform:scale(1.2)}
-.ri.a{opacity:1;color:var(--team-color,#1a8aab);background:color-mix(in srgb,var(--team-color,#1a8aab) 10%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--team-color,#1a8aab) 20%,transparent)}
-.ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:#ef4444;border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #fff}
+.rdv{width:32px;height:2px;background:rgba(0,0,0,.06);margin:5px 0;flex-shrink:0;border-radius:1px}
+.ri{width:70px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;color:var(--team-color,#6a9bb2);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:10px;font-weight:800;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.4px;opacity:.45;text-transform:uppercase}
+.ri:hover{opacity:.75;background:rgba(0,0,0,.04)}
+.ri svg,.ri img{transform:scale(1.25)}
+.ri.a{opacity:1;color:var(--team-color,#1a8aab);background:color-mix(in srgb,var(--team-color,#1a8aab) 12%,#fff);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--team-color,#1a8aab) 25%,transparent),0 2px 8px color-mix(in srgb,var(--team-color,#1a8aab) 10%,transparent)}
+.ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:#ef4444;border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #f8fafc}
 .rft{margin-top:auto;padding:8px 0;flex-shrink:0;display:flex;flex-direction:column;gap:4px;align-items:center}
 .rft button{background:none;border:none;color:#94a3b8;cursor:pointer;padding:8px;border-radius:10px;transition:all .2s}
-.rft button:hover{color:#ef4444;background:rgba(0,0,0,.04)}
+.rft button:hover{color:#ef4444;background:rgba(239,68,68,.06)}
 .cnt{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#0c2d48,#0f3654);flex-shrink:0}
 .hb{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:6px;position:relative;border-radius:8px}
 .hb:hover{color:#fff}.hb .dot{position:absolute;top:3px;right:3px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #0c2d48}
 .ms{flex:1;overflow-y:auto;padding:14px 16px}
+.app-footer{text-align:center;padding:20px 10px 12px;font-size:9px;color:var(--t3);opacity:.5;letter-spacing:.3px}
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .pt{font-family:var(--fd);font-size:17px;text-transform:uppercase}
 .ba{display:flex;align-items:center;gap:5px;background:var(--ag);color:var(--ac);border:1.5px solid rgba(26,138,171,.3);border-radius:var(--rs);padding:7px 11px;font-size:11px;font-weight:600;font-family:var(--f);cursor:pointer}
@@ -930,7 +931,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
         </div>
         <div className="cnt">
           <div className="top" style={{background:`linear-gradient(90deg,#0c2d48,${tInfo.color}22)`}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div></div>
-          <div className="ms">{pages[pg]?pages[pg]():pgHome()}</div>
+          <div className="ms">{pages[pg]?pages[pg]():pgHome()}<div className="app-footer">pro TJ Dynamo Drnholec vyrobil Martin Staša</div></div>
         </div>
       </div>
       {modals()}
