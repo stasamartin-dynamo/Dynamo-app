@@ -13,8 +13,8 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#ca8a04",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#7c3aed",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
-const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[],votings:[]});
+const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#ca8a04",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#7c3aed",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"treneri",name:"Trenéři",color:"#475569",pin:"3385"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
+const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[],votings:[],tasks:[]});
 const compressImg=(file,maxW=800,quality=0.6)=>new Promise((res)=>{if(!file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);return}const img=new Image();const r=new FileReader();r.onload=e=>{img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',quality))};img.src=e.target.result};r.readAsDataURL(file)});
 const thumbImg=(file,sz=120)=>new Promise((res)=>{if(!file.type.startsWith('image/')){res(null);return}const img=new Image();const r=new FileReader();r.onload=e=>{img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;const s=Math.min(sz/w,sz/h);c.width=w*s;c.height=h*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',0.5))};img.src=e.target.result};r.readAsDataURL(file)});
 const DEF={teams:{},clubEvents:[]};
@@ -365,10 +365,10 @@ export default function App() {
 
       <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,width:'100%',maxWidth:380,marginBottom:8,marginTop:4}}>Klubové kategorie</div>
       <div className="ts-grid" style={{flexShrink:0}}>
-        {TEAMS.map(t=> {
-          const icons={["a-tym"]: "A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["vybor"]:"V"};
-          const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:(D.teams[t.id]?.players||[]).length;
-          const evCnt=t.id==="vybor"?(D.teams[t.id]?.meetings||[]).length:((D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length);
+        {TEAMS.filter(t=>t.id!=="treneri"&&t.id!=="vybor").map(t=> {
+          const icons={["a-tym"]:"A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP"};
+          const cnt=(D.teams[t.id]?.players||[]).length;
+          const evCnt=(D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length;
           return (
           <button key={t.id} className="ts-btn" style={{"--tc":t.color}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
             <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:t.color,borderRadius:'0 0 4px 4px'}}/>
@@ -378,6 +378,17 @@ export default function App() {
             </div>
           </button>);
         })}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,width:'100%',maxWidth:380,flexShrink:0,marginTop:8}}>
+        {TEAMS.filter(t=>t.id==="treneri"||t.id==="vybor").map(t=>{
+          const icons={["treneri"]:"T",["vybor"]:"V"};
+          const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:t.id==="treneri"?(D.teams[t.id]?.tasks||[]).filter(tk=>tk.status!=="hotovo").length:0;
+          const lbl=t.id==="vybor"?"členů":t.id==="treneri"?"úkolů":"";
+          return <button key={t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',background:'var(--cd)',border:'none',borderRadius:14,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 10px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left'}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
+            <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:t.color}}/>
+            <div style={{width:32,height:32,borderRadius:10,background:t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:14,color:'#fff',fontWeight:900,flexShrink:0}}>{icons[t.id]}</div>
+            <div><div style={{fontWeight:700,fontSize:12}}>{t.name}</div><div style={{fontSize:9,color:'var(--t3)'}}>{cnt} {lbl}</div></div>
+          </button>})}
       </div></>)}
 
       {ceMod&&<div className="mo" onClick={()=>setCeMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setCeMod(null)}><Ic.XC/></button>
@@ -417,6 +428,7 @@ export default function App() {
   );
 
   const isV=team==="vybor";
+  const isTr=team==="treneri";
   const T={...emptyTeam(),...(D.teams[team]||{})};
   const tInfo=TEAMS.find(t=>t.id===team)||TEAMS[0];
   const saveT=nd=>{save({...D,teams:{...D.teams,[team]:nd}})};
@@ -448,6 +460,9 @@ export default function App() {
   const setVExcuse=(vtId,name,reason)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,excuses:{...(v.excuses||{}),[name]:reason}}:v)})};
   const addDocToVoting=(vtId,doc)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,docs:[...(v.docs||[]),doc]}:v)})};
   const togVoteDone=(vtId)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,done:!v.done}:v)})};
+  const addTask=(t)=>{saveT({...T,tasks:[{...t,id:"tk_"+uid(),date:now(),status:"přiděleno",createdBy:me||"?"},...(T.tasks||[])]});setMod(null)};
+  const setTaskStatus=(tkId,status)=>{saveT({...T,tasks:(T.tasks||[]).map(t=>t.id===tkId?{...t,status}:t)})};
+  const delTask=(tkId)=>{if(!window.confirm("Opravdu smazat úkol?"))return;saveT({...T,tasks:(T.tasks||[]).filter(t=>t.id!==tkId)})};
   const togDone=(kind,evId)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,done:!e.done}:e)})};
   const editEv=(kind,evId,updates)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,...updates,editedBy:me||"?"}:e)});setMod(null)};
   const sLU=(mi,pi)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,lineup:pi}:m)});
@@ -456,7 +471,7 @@ export default function App() {
   const sR=(mi,r)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,result:r}:m)});
   const tPN=i=>saveT({...T,news:T.news.map(a=>a.id===i?{...a,pinned:!a.pinned}:a)});
   const apA=i=>saveT({...T,absences:T.absences.map(a=>a.id===i?{...a,status:"approved"}:a)});
-  const vP=(pi,ix)=>saveT({...T,polls:T.polls.map(p=>p.id===pi?{...p,options:p.options.map((o,i)=>i===ix?{...o,votes:o.votes+1}:o)}:p)});
+  const vP=(pi,ix)=>{const name=window.prompt("Zadejte své příjmení pro hlasování:");if(!name||!name.trim())return;const nm=name.trim();const poll=T.polls.find(p=>p.id===pi);if(poll&&(poll.voters||[]).includes(nm)){window.alert("Uživatel "+nm+" již hlasoval v této anketě.");return}saveT({...T,polls:T.polls.map(p=>p.id===pi?{...p,options:p.options.map((o,i)=>i===ix?{...o,votes:o.votes+1}:o),voters:[...(p.voters||[]),nm]}:p)})};
   const togAtt=(kind,evId,name,val)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,attendance:{...(e.attendance||{}),[name]:val}}:e)})};
   const setExcuse=(kind,evId,name,reason)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,excuses:{...(e.excuses||{}),[name]:reason}}:e)})};
   const addDocToMeet=(mtId,doc)=>{saveT({...T,meetings:T.meetings.map(m=>m.id===mtId?{...m,docs:[...(m.docs||[]),doc]}:m)})};
@@ -484,7 +499,8 @@ export default function App() {
 
   const navTeam=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>,dv:true},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
   const navVybor=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
-  const nav=isV?navVybor:navTeam;
+  const navTreneri=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"tasks",l:"Úkoly",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
+  const nav=isTr?navTreneri:isV?navVybor:navTeam;
 
   const pgHome=()=>{
     const doneM=(T.matches||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date));
@@ -500,15 +516,28 @@ export default function App() {
     return (<div>
     {/* Header */}
     <div style={{background:`linear-gradient(135deg,${tInfo.color}18,${tInfo.color}08)`,borderRadius:14,padding:14,marginBottom:12,border:`1px solid ${tInfo.color}20`}}>
-      <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:36,height:36,borderRadius:10,background:tInfo.color,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontFamily:'var(--fd)',fontSize:14,fontWeight:900}}>{{["a-tym"]:"A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["vybor"]:"V"}[team]||"?"}</div><div><div style={{fontFamily:'var(--fd)',fontSize:15,textTransform:'uppercase',letterSpacing:.5}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
+      <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:36,height:36,borderRadius:10,background:tInfo.color,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontFamily:'var(--fd)',fontSize:14,fontWeight:900}}>{{["a-tym"]:"A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["treneri"]:"T",["vybor"]:"V"}[team]||"?"}</div><div><div style={{fontFamily:'var(--fd)',fontSize:15,textTransform:'uppercase',letterSpacing:.5}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
     </div>
 
     {/* Mini dlaždice */}
-    {isV?(<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasov.</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
+    {isTr?(<div className="sg"><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status!=="hotovo").length}</div><div className="sl">Úkolů</div></div><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status==="hotovo").length}</div><div className="sl">Splněno</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div><div className="st" onClick={()=>go("polls")}><div className="sn">{T.polls.length}</div><div className="sl">Anket</div></div></div>)
+    :isV?(<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasov.</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
     :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
 
+    {/* Trenéři - task dashboard */}
+    {isTr&&(()=>{const tasks=(T.tasks||[]);const assigned=tasks.filter(t=>t.status==="přiděleno").length;const inProg=tasks.filter(t=>t.status==="zpracovávám").length;const done=tasks.filter(t=>t.status==="hotovo").length;
+    return <div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
+      <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📋 Přehled úkolů</div>
+      <div style={{display:'flex',gap:5,marginBottom:6}}>
+        <div style={{flex:1,background:'rgba(59,130,246,.08)',borderRadius:8,padding:'6px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:18,color:'#3b82f6'}}>{assigned}</div><div style={{fontSize:7,color:'var(--t3)',fontWeight:700}}>Přiděleno</div></div>
+        <div style={{flex:1,background:'rgba(245,158,11,.08)',borderRadius:8,padding:'6px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:18,color:'#f59e0b'}}>{inProg}</div><div style={{fontSize:7,color:'var(--t3)',fontWeight:700}}>Zpracovávám</div></div>
+        <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:8,padding:'6px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:18,color:'#16a34a'}}>{done}</div><div style={{fontSize:7,color:'var(--t3)',fontWeight:700}}>Hotovo</div></div>
+      </div>
+      {tasks.length>0&&<div style={{height:6,borderRadius:3,overflow:'hidden',display:'flex',background:'var(--bg)'}}>{assigned>0&&<div style={{flex:assigned,background:'#3b82f6'}}/>}{inProg>0&&<div style={{flex:inProg,background:'#f59e0b'}}/>}{done>0&&<div style={{flex:done,background:'#16a34a'}}/>}</div>}
+    </div>})()}
+
     {/* Bilance sezóny */}
-    {!isV&&<div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
+    {!isV&&!isTr&&<div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
       <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>⚽ Bilance sezóny</div>
       {played>0?<>
         <div style={{display:'flex',gap:5,marginBottom:8}}>
@@ -522,10 +551,10 @@ export default function App() {
     </div>}
 
     {/* Příští zápas */}
-    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div>{nxM?<div style={ecs} onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt" style={{fontSize:14,fontWeight:700}}><VS op={nxM.opponent} sz={14} home={nxM.location==="Domácí"}/></div><div className="css2" style={{marginTop:3}}>{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`} style={{fontSize:10,padding:'4px 10px'}}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející zápas</div></div>}</div>)}
+    {!isV&&!isTr&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div>{nxM?<div style={ecs} onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt" style={{fontSize:14,fontWeight:700}}><VS op={nxM.opponent} sz={14} home={nxM.location==="Domácí"}/></div><div className="css2" style={{marginTop:3}}>{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`} style={{fontSize:10,padding:'4px 10px'}}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející zápas</div></div>}</div>)}
 
     {/* Příští trénink */}
-    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div>{nxT?<div style={ecs} onClick={()=>go("trainings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxT.focus}</div><div className="css2" style={{marginTop:3}}>{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející trénink</div></div>}</div>)}
+    {!isV&&!isTr&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div>{nxT?<div style={ecs} onClick={()=>go("trainings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxT.focus}</div><div className="css2" style={{marginTop:3}}>{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející trénink</div></div>}</div>)}
 
     {/* Výbor - příští schůze */}
     {nxMt&&isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div style={ecs} onClick={()=>go("meetings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxMt.topic}</div><div className="css2" style={{marginTop:3}}>{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
@@ -838,7 +867,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
   const pgPo=()=>(<div><div className="ph"><div className="pt">Ankety</div><button className="ba" onClick={()=>setMod("aPo")}><Ic.Plus/></button></div>
     {T.polls.length===0&&<div className="es"><p>Žádné ankety</p></div>}
     {T.polls.map(p=>{const tot=p.options.reduce((s,o)=>s+o.votes,0)||1;const cl=['var(--ac)','var(--g)','var(--y)','var(--o)','var(--p)'];
-    return (<div className="pc" key={p.id}><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}><div className="pq" style={{marginBottom:0}}>{p.question}</div><button className="ib d" onClick={()=>del("polls",p.id)} style={{flexShrink:0}}><Ic.Del/></button></div>{p.options.map((o,i)=> <div key={i}><div className="pbw"><div className="pbl">{o.text}</div><div className="pbb"><div className="pbf" style={{width:Math.round(o.votes/tot*100)+"%",background:cl[i%5],color:'#fff'}}>{o.votes}</div></div></div></div>)}<div style={{marginTop:5}}>{p.options.map((o,i)=> <button key={i} className="pvb" onClick={()=>vP(p.id,i)}>+ {o.text}</button>)}</div></div>)})}</div>);
+    return (<div className="pc" key={p.id}><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}><div className="pq" style={{marginBottom:0}}>{p.question}</div><button className="ib d" onClick={()=>del("polls",p.id)} style={{flexShrink:0}}><Ic.Del/></button></div>{p.options.map((o,i)=> <div key={i}><div className="pbw"><div className="pbl">{o.text}</div><div className="pbb"><div className="pbf" style={{width:Math.round(o.votes/tot*100)+"%",background:cl[i%5],color:'#fff'}}>{o.votes}</div></div></div></div>)}<div style={{marginTop:5}}>{p.options.map((o,i)=> <button key={i} className="pvb" onClick={()=>vP(p.id,i)}>+ {o.text}</button>)}</div>{(p.voters||[]).length>0&&<div style={{fontSize:9,color:'var(--t3)',marginTop:6,borderTop:'1px solid var(--b)',paddingTop:4}}>Hlasovali: {(p.voters||[]).join(', ')}</div>}</div>)})}</div>);
 
   const pgPh=()=>(<div><div className="ph"><div className="pt">Fotky</div><button className="ba" onClick={()=>setMod("aPh")}><Ic.Plus/></button></div>
     {T.photos.length===0? <div className="es"><p>Žádné fotky</p></div>:
@@ -857,6 +886,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
     if(mod==="aPo") return (<FM title="Nová anketa" onS={f=>{const opts=f.get('op').split('\n').filter(x=>x.trim()).map(t=>({text:t.trim(),votes:0}));if(opts.length>=2)addPo({question:f.get('q'),options:opts})}} ch={<>{F("q","Otázka")}{F("op","Možnosti","textarea","Modrá\nČervená")}<button type="submit" className="fs">Vytvořit</button></>}/>);
     if(mod==="aMt") return (<FM title="Nová schůze" onS={f=>addMeet({date:f.get('d'),time:f.get('t'),location:f.get('l'),topic:f.get('tp')})} ch={<>{F("tp","Téma/program")}{F("d","Datum","date")}{F("t","Čas","time")}{F("l","Místo")}<button type="submit" className="fs">Vytvořit schůzi</button></>}/>);
     if(mod==="aVt") return (<FM title="Nové hlasování" onS={f=>addVoting({topic:f.get('tp'),description:f.get('ds')})} ch={<>{F("tp","Téma hlasování")}{F("ds","Popis / zdůvodnění","textarea","",false)}<button type="submit" className="fs">Vytvořit hlasování</button></>}/>);
+    if(mod==="aTk") return (<FM title="Nový úkol" onS={f=>addTask({title:f.get('ti'),description:f.get('ds'),assignee:f.get('as')})} ch={<>{F("ti","Název úkolu")}{F("ds","Popis","textarea","",false)}{F("as","Přiřadit komu","text","",false)}<button type="submit" className="fs">Vytvořit úkol</button></>}/>);
     if(mod==="aPh") return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Přidat fotku</div>
       <div className="fg"><label className="fl">Vyberte fotku</label><input type="file" accept="image/*" id="ph-file" style={{width:'100%',padding:10,background:'var(--bg)',border:'1.5px solid var(--b2)',borderRadius:'var(--rs)',color:'var(--t)',fontSize:13,fontFamily:'var(--f)'}}/></div>
       <div className="fg"><label className="fl">Popis</label><input type="text" id="ph-cap" className="fi" placeholder="Popis fotky"/></div>
@@ -915,7 +945,34 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
       <button type="submit" className="fs">Uložit</button></form></div></div>);}
     return null};
 
-  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings,votings:pgVotings};
+  const taskColors={"přiděleno":"#3b82f6","zpracovávám":"#f59e0b","hotovo":"#16a34a"};
+  const pgTasks=()=>{const tasks=(T.tasks||[]);const assigned=tasks.filter(t=>t.status==="přiděleno");const inProgress=tasks.filter(t=>t.status==="zpracovávám");const done=tasks.filter(t=>t.status==="hotovo");
+    return (<div>
+    <div className="ph"><div className="pt">Úkoly</div><button className="ba" onClick={()=>setMod("aTk")}><Ic.Plus/> Nový</button></div>
+    {/* Dashboard */}
+    <div style={{display:'flex',gap:6,marginBottom:14}}>
+      <div style={{flex:1,background:'rgba(59,130,246,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#3b82f6'}}>{assigned.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Přiděleno</div></div>
+      <div style={{flex:1,background:'rgba(245,158,11,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#f59e0b'}}>{inProgress.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Zpracovávám</div></div>
+      <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#16a34a'}}>{done.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Hotovo</div></div>
+    </div>
+    {tasks.length===0&&<div className="es"><p>Žádné úkoly</p></div>}
+    {["přiděleno","zpracovávám","hotovo"].map(st=>{const list=tasks.filter(t=>t.status===st);if(!list.length)return null;return <div key={st}>
+      <div className="lb" style={{color:taskColors[st],display:'flex',alignItems:'center',gap:5}}><span style={{width:8,height:8,borderRadius:'50%',background:taskColors[st]}}/>{st==="přiděleno"?"Přiděleno":st==="zpracovávám"?"Zpracovávám":"Hotovo"} ({list.length})</div>
+      {list.map(t=><div key={t.id} style={{background:'var(--cd)',borderRadius:12,padding:12,marginBottom:6,borderLeft:`4px solid ${taskColors[st]}`,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
+          <div style={{fontWeight:700,fontSize:13}}>{t.title}</div>
+          <button className="ib d" onClick={()=>delTask(t.id)} style={{padding:3,flexShrink:0}}><Ic.Del/></button>
+        </div>
+        {t.description&&<div style={{fontSize:11,color:'var(--t2)',marginBottom:6}}>{t.description}</div>}
+        <div style={{fontSize:10,color:'var(--t3)',marginBottom:6}}>{t.assignee&&<span>👤 {t.assignee} · </span>}{fd(t.date)} · {t.createdBy}</div>
+        <div style={{display:'flex',gap:4}}>
+          {["přiděleno","zpracovávám","hotovo"].map(s=><button key={s} onClick={()=>setTaskStatus(t.id,s)} style={{fontSize:9,padding:'3px 8px',borderRadius:10,border:t.status===s?`2px solid ${taskColors[s]}`:'1.5px solid var(--b2)',background:t.status===s?taskColors[s]+'18':'var(--bg)',color:taskColors[s],cursor:'pointer',fontFamily:'var(--f)',fontWeight:t.status===s?700:500}}>{s==="přiděleno"?"📋 Přiděleno":s==="zpracovávám"?"⚙️ Zpracovávám":"✓ Hotovo"}</button>)}
+        </div>
+      </div>)}
+    </div>})}
+  </div>)};
+
+  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings,votings:pgVotings,tasks:pgTasks};
 
   return (
     <div><style>{S}</style>
@@ -927,7 +984,8 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
           <div className="rft">
             <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Změnit tým"><Ic.Grid/></button>
             <button onClick={()=>{setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Odhlásit"><Ic.Out/></button>
-            <div style={{fontSize:7,color:'#a0aec0',textAlign:'center',lineHeight:1.3,marginTop:4,opacity:.6}}>made for TJ DD<br/>by Martin Staša</div>
+            <div style={{width:50,height:1,background:'rgba(0,0,0,.08)',margin:'6px auto 4px'}}/>
+            <div style={{fontSize:7,color:'#64748b',textAlign:'center',lineHeight:1.4,fontWeight:600}}>Made for TJ DD<br/>by Martin Staša</div>
           </div>
         </div>
         <div className="cnt">
