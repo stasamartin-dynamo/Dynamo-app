@@ -188,7 +188,7 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .c2:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,116,144,.1)}
 .cr{display:flex;align-items:center;justify-content:space-between}
 .ctt{font-weight:700;font-size:13px;margin-bottom:2px}.css2{font-size:11px;color:var(--t2)}
-.tg{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase}
+.tg{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;letter-spacing:.3px;line-height:1}
 .th{background:var(--gb);color:var(--g)}.ta{background:var(--yb);color:var(--y)}
 .sg{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:14px}
 .st{background:var(--cd);border:none;border-radius:12px;padding:10px 6px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9);transition:all .2s;position:relative;overflow:hidden;text-align:center}
