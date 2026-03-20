@@ -624,10 +624,16 @@ export default function App() {
     {plTab==="list"&&T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
       <div className="ca">{p.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
       <div style={{flex:1,minWidth:0}}>
-        <div style={{fontWeight:600,fontSize:12}}>{p.name}</div>
-        <div style={{fontSize:10,color:'var(--t3)'}}>{p.position} · nar. {p.birthYear}</div>
-        {p.phone&&<div style={{fontSize:10,marginTop:2}}><a href={`tel:${p.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>📱 {p.phone}</a></div>}
-        {p.parentName&&<div style={{fontSize:10,color:'var(--t2)',marginTop:3,borderTop:'1px solid var(--b)',paddingTop:3}}>👤 {p.parentName}{p.parentPhone&&<a href={`tel:${p.parentPhone}`} style={{color:'var(--ac)',textDecoration:'none',marginLeft:6}}>📞 {p.parentPhone}</a>}</div>}
+        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:2}}>
+          <span style={{fontWeight:700,fontSize:13}}>{p.name}</span>
+          {p.position&&<span style={{fontSize:9,fontWeight:700,padding:'1px 7px',borderRadius:10,background:p.position==="Brankář"?'rgba(202,138,4,.15)':p.position==="Obránce"?'rgba(22,163,74,.15)':p.position==="Záložník"?'rgba(26,138,171,.15)':'rgba(220,38,38,.15)',color:p.position==="Brankář"?'var(--y)':p.position==="Obránce"?'var(--g)':p.position==="Záložník"?'var(--ac)':'var(--r)'}}>{p.position}</span>}
+        </div>
+        <div style={{fontSize:10,color:'var(--t3)'}}>nar. {p.birthYear}</div>
+        <div style={{display:'flex',gap:8,marginTop:4}}>
+          {p.phone&&<a href={`tel:${p.phone}`} style={{fontSize:10,color:'var(--ac)',textDecoration:'none',display:'flex',alignItems:'center',gap:3,padding:'3px 8px',background:'var(--ag)',borderRadius:10,fontWeight:600}}>📱 {p.phone}</a>}
+          {p.parentPhone&&<a href={`tel:${p.parentPhone}`} style={{fontSize:10,color:'var(--ac)',textDecoration:'none',display:'flex',alignItems:'center',gap:3,padding:'3px 8px',background:'var(--ag)',borderRadius:10,fontWeight:600}}>👤 {p.parentPhone}</a>}
+        </div>
+        {p.parentName&&<div style={{fontSize:10,color:'var(--t2)',marginTop:3}}>Rodič: {p.parentName}</div>}
         <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingTop:4,borderTop:'1px solid var(--b)'}}>
           <input type="checkbox" checked={!!p.feePaid} onChange={()=>togFee(p.id)} style={{accentColor:p.feePaid?'var(--g)':'var(--r)',width:16,height:16,cursor:'pointer'}}/>
           <span style={{fontSize:10,fontWeight:600,color:p.feePaid?'var(--g)':'var(--r)'}}>{p.feePaid?'Příspěvek zaplacen':'Příspěvek nezaplacen'}</span>
