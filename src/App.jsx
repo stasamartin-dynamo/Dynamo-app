@@ -927,11 +927,12 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
           <div className="rft">
             <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Změnit tým"><Ic.Grid/></button>
             <button onClick={()=>{setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Odhlásit"><Ic.Out/></button>
+            <div style={{fontSize:7,color:'#a0aec0',textAlign:'center',lineHeight:1.3,marginTop:4,opacity:.6}}>made for TJ DD<br/>by Martin Staša</div>
           </div>
         </div>
         <div className="cnt">
           <div className="top" style={{background:`linear-gradient(90deg,#0c2d48,${tInfo.color}22)`}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div></div>
-          <div className="ms">{pages[pg]?pages[pg]():pgHome()}<div className="app-footer">pro TJ Dynamo Drnholec vyrobil Martin Staša</div></div>
+          <div className="ms">{pages[pg]?pages[pg]():pgHome()}</div>
         </div>
       </div>
       {modals()}
