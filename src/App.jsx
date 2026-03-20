@@ -104,6 +104,19 @@ DEF.teams["starsi-pripravka"].matches=[
 {id:"spm7",date:"2026-05-24",time:"11:00",opponent:"FC Pálava Mikulov",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"spm8",date:"2026-05-30",time:"16:00",opponent:"TJ Sokol Velké Němčice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""}
 ];
+DEF.teams["mladsi-pripravka"].players=[
+{id:"mp1",name:"Damián Bělíček",number:0,position:"",birthYear:2017},
+{id:"mp2",name:"Lukáš Bláha",number:0,position:"",birthYear:2017},
+{id:"mp3",name:"Adam Cvrkal",number:0,position:"",birthYear:2017},
+{id:"mp4",name:"Erik Nguyen",number:0,position:"",birthYear:2017},
+{id:"mp5",name:"Štěpán Skřivánek",number:0,position:"",birthYear:2017},
+{id:"mp6",name:"Štěpán Tanasie",number:0,position:"",birthYear:2017},
+{id:"mp7",name:"Antonín Woznica",number:0,position:"",birthYear:2017},
+{id:"mp8",name:"Marek Bošiak",number:0,position:"",birthYear:2018},
+{id:"mp9",name:"Jan Růžička",number:0,position:"",birthYear:2018},
+{id:"mp10",name:"Patrik Kovář",number:0,position:"",birthYear:2019},
+{id:"mp11",name:"Jan Ivičič",number:0,position:"",birthYear:2019}
+];
 DEF.teams["mladsi-pripravka"].matches=[
 {id:"mpm1",date:"2026-04-04",time:"09:00",opponent:"TJ Sokol Pohořelice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"mpm2",date:"2026-04-12",time:"10:00",opponent:"TJ START Vlasatice",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
