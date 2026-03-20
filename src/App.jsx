@@ -284,7 +284,7 @@ export default function App() {
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
   const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
-  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const ce=useRef(null);
+  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const ce=useRef(null);
 
   useEffect(()=>{
     const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
@@ -361,6 +361,7 @@ export default function App() {
   const editCt=(cid,u)=>{saveT({...T,contacts:T.contacts.map(c=>c.id===cid?{...c,...u}:c)});setMod(null)};
   const addCoach=c=>{const n=nt("Trenér: "+c.name,"coaches");saveT({...T,...n,coaches:[...T.coaches,{...c,id:"co_"+uid()}]});setMod(null)};
   const editCoach=(cid,u)=>{saveT({...T,coaches:T.coaches.map(c=>c.id===cid?{...c,...u}:c)});setMod(null)};
+  const togFee=(pid)=>{saveT({...T,players:T.players.map(p=>p.id===pid?{...p,feePaid:!p.feePaid}:p)})};
   const addNw=a=>{const n=nt("Aktualita: "+a.title,"news");saveT({...T,...n,news:[{...a,id:"nw_"+uid(),date:now(),pinned:false},...T.news]});setMod(null)};
   const sChat=(tx,f)=>{if(!tx.trim()||!f.trim())return;const n=nt(f+": "+tx.substring(0,30),"chat");saveT({...T,...n,chat:[...T.chat,{id:"ch_"+uid(),ts:now(),from:f,text:tx}]});setCi("")};
   const addAb=a=>{const n=nt("Omluvenka: "+a.playerName,"absences");saveT({...T,...n,absences:[...T.absences,{...a,id:"a_"+uid(),date:td(),status:"pending"}]});setMod(null)};
@@ -399,7 +400,7 @@ export default function App() {
         {isExc&&<button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,"")}>Zrušit omluvu</button>}
       </div>)})}</div>)};
 
-  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
+  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"stats",l:"Statistiky",i: <Ic.Chart/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
   const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true}];
   const nav=isV?navVybor:navTeam;
 
@@ -483,17 +484,41 @@ export default function App() {
     {paMt.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{m.topic}</div><div className="css2">{fd(m.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>)}
   </div>)};
 
+  const getStats=(pName)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[pName]).length;const ta=dt.filter(t=>(t.attendance||{})[pName]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
+
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
-    {T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
+    <div style={{display:'flex',gap:6,marginBottom:12}}>{[["list","Seznam"],["stats","Statistiky"]].map(([k,l])=> <button key={k} onClick={()=>setPlTab(k)} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,fontFamily:'var(--f)',cursor:'pointer',border:plTab===k?'1.5px solid var(--ac)':'1.5px solid var(--b2)',background:plTab===k?'var(--ag)':'var(--bg)',color:plTab===k?'var(--ac)':'var(--t3)'}}>{l}</button>)}</div>
+    {plTab==="list"&&T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
       <div className="ca">{p.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontWeight:600,fontSize:12}}>{p.name}</div>
         <div style={{fontSize:10,color:'var(--t3)'}}>{p.position} · nar. {p.birthYear}</div>
         {p.phone&&<div style={{fontSize:10,marginTop:2}}><a href={`tel:${p.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>📱 {p.phone}</a></div>}
         {p.parentName&&<div style={{fontSize:10,color:'var(--t2)',marginTop:3,borderTop:'1px solid var(--b)',paddingTop:3}}>👤 {p.parentName}{p.parentPhone&&<a href={`tel:${p.parentPhone}`} style={{color:'var(--ac)',textDecoration:'none',marginLeft:6}}>📞 {p.parentPhone}</a>}</div>}
+        <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4,paddingTop:4,borderTop:'1px solid var(--b)'}}>
+          <input type="checkbox" checked={!!p.feePaid} onChange={()=>togFee(p.id)} style={{accentColor:p.feePaid?'var(--g)':'var(--r)',width:16,height:16,cursor:'pointer'}}/>
+          <span style={{fontSize:10,fontWeight:600,color:p.feePaid?'var(--g)':'var(--r)'}}>{p.feePaid?'Příspěvek zaplacen':'Příspěvek nezaplacen'}</span>
+        </div>
       </div>
       <div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eP",ev:p})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button></div>
-    </div>)}</div>);
+    </div>)}
+    {plTab==="stats"&&(<div>
+      <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>Započítávají se pouze dokončené události (✓ Proběhlo)</div>
+      <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+        <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th></tr></thead>
+        <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
+          <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
+          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
+          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
+          <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
+        </tr>})}</tbody>
+      </table></div>
+      <div style={{marginTop:10,padding:10,background:'var(--cd)',borderRadius:'var(--rd)'}}>
+        <div style={{fontSize:10,fontWeight:600,color:'var(--t3)',marginBottom:4}}>Příspěvky</div>
+        <div style={{display:'flex',gap:16}}><span style={{fontSize:12,color:'var(--g)',fontWeight:700}}>✓ {T.players.filter(p=>p.feePaid).length} zaplaceno</span><span style={{fontSize:12,color:'var(--r)',fontWeight:700}}>✗ {T.players.filter(p=>!p.feePaid).length} nezaplaceno</span></div>
+      </div>
+    </div>)}
+  </div>);
 
   const pgCt=()=>(<div><div className="ph"><div className="pt">{isV?"Členové výboru":"Adresář"}</div><button className="ba" onClick={()=>setMod("aCt")}><Ic.Plus/></button></div>
     {T.contacts.length===0&&<div className="es"><p>Žádné kontakty</p></div>}
@@ -531,7 +556,7 @@ export default function App() {
   const modals=()=>{if(!mod) return null;
     if(mod==="aM") return (<FM title="Nový zápas" onS={f=>addM({date:f.get('d'),time:f.get('t'),meetTime:f.get('mt'),opponent:f.get('o'),location:f.get('l'),type:f.get('tp')})} ch={<>{F("o","Soupeř")}{F("d","Datum","date")}{F("t","Čas zápasu","time")}<div className="fg"><label className="fl">Čas srazu</label><input name="mt" type="time" className="fi"/></div><div className="fg"><label className="fl">Místo</label><select name="l" className="fi"><option value="Domácí">Doma</option><option value="Venku">Venku</option></select></div><div className="fg"><label className="fl">Typ</label><select name="tp" className="fi"><option>Liga</option><option>Pohár</option><option>Přátelský</option></select></div><button type="submit" className="fs">Přidat</button></>}/>);
     if(mod==="aT") return (<FM title="Nový trénink" onS={f=>addTr({date:f.get('d'),time:f.get('t'),duration:f.get('dr'),location:f.get('l'),focus:f.get('f'),notes:f.get('n')})} ch={<>{F("f","Zaměření")}{F("d","Datum","date")}{F("t","Čas","time")}{F("dr","Délka","text","90 min")}{F("l","Místo")}{F("n","Poznámky","textarea","",false)}<button type="submit" className="fs">Přidat</button></>}/>);
-    if(mod==="aP") return (<FM title="Nový hráč" onS={f=>addPl({name:f.get('nm'),number:0,position:f.get('po'),birthYear:parseInt(f.get('yr')),phone:f.get('ph'),parentName:f.get('pn'),parentPhone:f.get('pp')})} ch={<>{F("nm","Jméno hráče")}<div className="fg"><label className="fl">Pozice</label><select name="po" className="fi"><option>Brankář</option><option>Obránce</option><option>Záložník</option><option>Útočník</option></select></div><div className="fg"><label className="fl">Rok narození</label><select name="yr" className="fi">{Array.from({length:30},(_,i)=>2030-i).map(y=> <option key={y} value={y}>{y}</option>)}</select></div>{F("ph","Telefon hráče","tel","+420...",false)}<div style={{borderTop:'1px solid var(--b)',paddingTop:10,marginTop:4,marginBottom:8}}><div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8}}>Rodič / Zákonný zástupce</div></div>{F("pn","Jméno rodiče","text","",false)}{F("pp","Telefon rodiče","tel","+420...",false)}<button type="submit" className="fs">Přidat hráče</button></>}/>);
+    if(mod==="aP") return (<FM title="Nový hráč" onS={f=>addPl({name:f.get('nm'),number:0,position:f.get('po'),birthYear:parseInt(f.get('yr')),phone:f.get('ph'),parentName:f.get('pn'),parentPhone:f.get('pp'),feePaid:false})} ch={<>{F("nm","Jméno hráče")}<div className="fg"><label className="fl">Pozice</label><select name="po" className="fi"><option>Brankář</option><option>Obránce</option><option>Záložník</option><option>Útočník</option></select></div><div className="fg"><label className="fl">Rok narození</label><select name="yr" className="fi">{Array.from({length:30},(_,i)=>2030-i).map(y=> <option key={y} value={y}>{y}</option>)}</select></div>{F("ph","Telefon hráče","tel","+420...",false)}<div style={{borderTop:'1px solid var(--b)',paddingTop:10,marginTop:4,marginBottom:8}}><div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8}}>Rodič / Zákonný zástupce</div></div>{F("pn","Jméno rodiče","text","",false)}{F("pp","Telefon rodiče","tel","+420...",false)}<button type="submit" className="fs">Přidat hráče</button></>}/>);
     if(mod==="aCt") return (<FM title={isV?"Nový člen":"Nový kontakt"} onS={f=>addCt({name:f.get('nm'),relation:f.get('rl'),phone:f.get('ph'),email:f.get('em')})} ch={<>{F("nm","Jméno")}{F("rl",isV?"Funkce":"Vztah","text",isV?"Předseda":"Otec–Jakub",false)}{F("ph","Telefon","tel","+420...",false)}{F("em","E-mail","email","",false)}<button type="submit" className="fs">Přidat</button></>}/>);
     if(mod==="aNw") return (<FM title="Nová aktualita" onS={f=>addNw({from:f.get('fr'),title:f.get('ti'),text:f.get('tx'),important:f.get('im')==="on"})} ch={<>{F("fr","Autor")}{F("ti","Nadpis")}{F("tx","Text","textarea")}<div className="fg" style={{display:'flex',alignItems:'center',gap:8}}><input type="checkbox" name="im" id="ic"/><label htmlFor="ic" style={{fontSize:12,color:'var(--t2)'}}>Důležité</label></div><button type="submit" className="fs">Publikovat</button></>}/>);
     if(mod==="aAb") return (<FM title="Omluvit hráče" onS={f=>addAb({playerName:f.get('pl'),reason:f.get('rs'),eventDate:f.get('dt'),from:f.get('fr')})} ch={<>{F("fr","Vaše jméno")}<div className="fg"><label className="fl">Hráč</label><select name="pl" className="fi">{T.players.map(p=> <option key={p.id} value={p.name}>{p.name}</option>)}</select></div>{F("dt","Datum","date")}<div className="fg"><label className="fl">Důvod</label><select name="rs" className="fi"><option>Nemoc</option><option>Zranění</option><option>Rodina</option><option>Škola</option></select></div><button type="submit" className="fs">Odeslat</button></>}/>);
@@ -595,7 +620,26 @@ export default function App() {
       <button type="submit" className="fs">Uložit</button></form></div></div>);}
     return null};
 
-  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings};
+  const pgStats=()=>(<div><div className="ph"><div className="pt">Statistiky</div></div>
+    <div style={{fontSize:10,color:'var(--t3)',marginBottom:10}}>Pouze dokončené události (✓ Proběhlo)</div>
+    <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+      <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>%</th></tr></thead>
+      <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);const pct=s.totalAll>0?Math.round(s.total/s.totalAll*100):0;return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
+        <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
+        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
+        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
+        <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
+        <td style={{padding:'7px 6px',textAlign:'center'}}><div style={{width:'100%',height:16,background:'var(--bg)',borderRadius:8,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:pct>=75?'var(--g)':pct>=50?'var(--ac)':pct>=25?'var(--y)':'var(--r)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:3}}><span style={{fontSize:8,fontWeight:700,color:'#fff'}}>{pct>10?pct+'%':''}</span></div></div></td>
+      </tr>})}</tbody>
+    </table></div>
+    <div style={{marginTop:12,padding:12,background:'var(--cd)',borderRadius:'var(--rd)'}}>
+      <div style={{fontSize:10,fontWeight:600,color:'var(--t3)',marginBottom:6}}>Členské příspěvky</div>
+      <div style={{display:'flex',gap:16,marginBottom:8}}><span style={{fontSize:13,color:'var(--g)',fontWeight:700}}>✓ {T.players.filter(p=>p.feePaid).length} zaplaceno</span><span style={{fontSize:13,color:'var(--r)',fontWeight:700}}>✗ {T.players.filter(p=>!p.feePaid).length} nezaplaceno</span></div>
+      {T.players.filter(p=>!p.feePaid).length>0&&<div style={{fontSize:10,color:'var(--r)',marginTop:4}}>Nezaplaceno: {T.players.filter(p=>!p.feePaid).map(p=>pName(p)).join(', ')}</div>}
+    </div>
+  </div>);
+
+  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings,stats:pgStats};
 
   return (
     <div><style>{S}</style>
