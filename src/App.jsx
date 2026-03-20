@@ -296,7 +296,7 @@ export default function App() {
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
   const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [selVt,setSelVt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
-  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
+  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const [showPitch,setShowPitch]=useState(false);const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
 
   useEffect(()=>{
     const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
@@ -507,8 +507,9 @@ export default function App() {
     {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v)}}}>Uložit</button></div>}
     {m.result&&<div style={{background:'var(--ag)',borderRadius:'var(--rd)',padding:12,marginBottom:12,textAlign:'center'}}><div style={{fontSize:10,color:'var(--t3)',textTransform:'uppercase'}}>Výsledek</div><div style={{fontFamily:'var(--fd)',fontSize:28,color:'var(--ac)'}}>{m.result}</div></div>}
     <div className="lb">Sestava {(()=>{const conf=T.players.filter(p=>(m.attendance||{})[p.name]);return conf.length>0?`(${conf.length} potvrzených)`:"(žádný potvrzený)"})()}</div>
-    <div className="lc" style={{marginBottom:12}}>{T.players.filter(p=>(m.attendance||{})[p.name]).map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{pName(p)}</button>)}</div>
-    {(m.lineup||[]).length>0&&(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const pos=m.lineupPos||{};
+    <div className="lc" style={{marginBottom:8}}>{T.players.filter(p=>(m.attendance||{})[p.name]).map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{pName(p)}</button>)}</div>
+    {(m.lineup||[]).length>0&&<button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>}
+    {showPitch&&(m.lineup||[]).length>0&&(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const pos=m.lineupPos||{};
       const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];const n=lp.length;const cols=Math.ceil(Math.sqrt(n));const row=Math.floor(i/cols);const col=i%cols;const rows=Math.ceil(n/cols);return{x:15+col*(70/(cols-1||1)),y:10+row*(80/(rows-1||1))}};
       const onDrag=(pid,e)=>{const el=e.currentTarget.closest('.lf');if(!el)return;const r=el.getBoundingClientRect();const getXY=(ev)=>{const cx=ev.touches?ev.touches[0].clientX:ev.clientX;const cy=ev.touches?ev.touches[0].clientY:ev.clientY;return{x:Math.max(5,Math.min(95,((cx-r.left)/r.width)*100)),y:Math.max(3,Math.min(95,((cy-r.top)/r.height)*100))}};
         const fp=e.currentTarget;fp.style.zIndex=10;
