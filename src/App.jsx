@@ -505,38 +505,32 @@ export default function App() {
     <div className="pt" style={{marginBottom:8,opacity:m.done?.5:1}}>vs {m.opponent}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time}{m.meetTime&&<span style={{color:'var(--ac)'}}> · sraz {m.meetTime}</span>} · {m.location==="Domácí"?"Doma":"Venku"} · {m.type}</div>
     {!m.result&&<div style={{marginBottom:12,display:'flex',gap:6}}><input className="fi" placeholder="3:1" id="ri" style={{flex:1}}/><button className="ba" onClick={()=>{const v=document.getElementById('ri').value;if(v){sR(m.id,v)}}}>Uložit</button></div>}
     {m.result&&<div style={{background:'var(--ag)',borderRadius:'var(--rd)',padding:12,marginBottom:12,textAlign:'center'}}><div style={{fontSize:10,color:'var(--t3)',textTransform:'uppercase'}}>Výsledek</div><div style={{fontFamily:'var(--fd)',fontSize:28,color:'var(--ac)'}}>{m.result}</div></div>}
-    <div className="lb">Nominace {(()=>{const conf=T.players.filter(p=>(m.attendance||{})[p.name]);return conf.length>0?`(${conf.length} potvrzených)`:"(žádný potvrzený)"})()}</div>
-    <div className="lc" style={{marginBottom:8}}>{T.players.filter(p=>(m.attendance||{})[p.name]).map(p=> <button key={p.id} className={`lch ${(m.lineup||[]).includes(p.id)?'s':''}`} onClick={()=>{const nl=(m.lineup||[]).includes(p.id)?(m.lineup||[]).filter(x=>x!==p.id):[...(m.lineup||[]),p.id];sLU(m.id,nl)}}>{pName(p)}</button>)}</div>
-    {(m.lineup||[]).length>0&&<button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>}
-    {showPitch&&(m.lineup||[]).length>0&&(()=>{const lineupIds=(m.lineup||[]);const lp=T.players.filter(p=>lineupIds.includes(p.id));const subs=T.players.filter(p=>(m.attendance||{})[p.name]&&!lineupIds.includes(p.id));const pos=m.lineupPos||{};
+    {(()=>{const confirmed=T.players.filter(p=>(m.attendance||{})[p.name]);return confirmed.length>0?<><div className="lb">Nominováni ({confirmed.length})</div>
+    <div className="lc" style={{marginBottom:8}}>{confirmed.map(p=> <span key={p.id} className="lch s" style={{cursor:'default'}}>{pName(p)}</span>)}</div>
+    <button className="ba" style={{marginBottom:10,fontSize:10}} onClick={()=>setShowPitch(!showPitch)}>{showPitch?"▲ Skrýt hřiště":"▼ Zobrazit hřiště"}</button>
+    {showPitch&&(()=>{const lp=confirmed;const excused=T.players.filter(p=>(m.excuses||{})[p.name]);const pos=m.lineupPos||{};const pitchKey=lp.map(p=>p.id).join('.');
       const defPos=(p,i)=>{if(pos[p.id])return pos[p.id];const n=lp.length;const cols=Math.min(Math.ceil(Math.sqrt(n)),4);const row=Math.floor(i/cols);const col=i%cols;const rows=Math.ceil(n/cols);return{x:15+col*(70/(Math.max(cols-1,1))),y:8+row*(70/(Math.max(rows-1,1)))};};
       const onDrag=(pid,e)=>{const el=e.currentTarget.closest('.lf');if(!el)return;const r=el.getBoundingClientRect();const getXY=(ev)=>{const cx=ev.touches?ev.touches[0].clientX:ev.clientX;const cy=ev.touches?ev.touches[0].clientY:ev.clientY;return{x:Math.max(5,Math.min(95,((cx-r.left)/r.width)*100)),y:Math.max(3,Math.min(95,((cy-r.top)/r.height)*100))}};
         const fp=e.currentTarget;fp.style.zIndex=10;
         const mv=(ev)=>{ev.preventDefault();const{x,y}=getXY(ev);fp.style.left=x+'%';fp.style.top=y+'%';fp.style.transform='translate(-50%,-50%)'};
         const up=(ev)=>{const{x,y}=getXY(ev.changedTouches?ev.changedTouches[0]:ev);fp.style.zIndex=2;sLP(m.id,{[pid]:{x,y}});document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up)};
         document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up)};
-      return <div className="lf" key={"pitch-"+lineupIds.join('.')} style={{minHeight:380}}>
-        {/* Středová čára */}
+      return <div className="lf" key={"pitch-"+pitchKey} style={{minHeight:380}}>
         <div style={{position:'absolute',top:'50%',left:'5%',right:'5%',height:1,background:'rgba(255,255,255,.2)'}}/>
-        {/* Středový kruh */}
         <div style={{position:'absolute',top:'50%',left:'50%',width:60,height:60,border:'1px solid rgba(255,255,255,.15)',borderRadius:'50%',transform:'translate(-50%,-50%)'}}/>
         <div style={{position:'absolute',top:'50%',left:'50%',width:6,height:6,background:'rgba(255,255,255,.25)',borderRadius:'50%',transform:'translate(-50%,-50%)'}}/>
-        {/* Branka dole */}
         <div style={{position:'absolute',bottom:0,left:'50%',transform:'translateX(-50%)',width:80,height:24,borderTop:'2px solid rgba(255,255,255,.5)',borderLeft:'2px solid rgba(255,255,255,.5)',borderRight:'2px solid rgba(255,255,255,.5)',borderRadius:'4px 4px 0 0'}}/>
         <div style={{position:'absolute',bottom:24,left:'50%',transform:'translateX(-50%)',width:160,height:40,borderTop:'1px solid rgba(255,255,255,.15)',borderLeft:'1px solid rgba(255,255,255,.15)',borderRight:'1px solid rgba(255,255,255,.15)',borderRadius:'4px 4px 0 0'}}/>
-        {/* Pokutový bod */}
         <div style={{position:'absolute',bottom:56,left:'50%',width:4,height:4,background:'rgba(255,255,255,.2)',borderRadius:'50%',transform:'translateX(-50%)'}}/>
-        {/* Náhradníci box */}
-        {subs.length>0&&<div style={{position:'absolute',top:8,left:8,background:'rgba(0,0,0,.35)',borderRadius:10,padding:'6px 10px',zIndex:5,maxWidth:'40%'}}>
-          <div style={{fontSize:8,fontWeight:700,color:'rgba(255,255,255,.6)',textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>Náhradníci</div>
-          {subs.map(p=><div key={p.id} style={{fontSize:9,color:'rgba(255,255,255,.7)',padding:'2px 0',display:'flex',alignItems:'center',gap:4}}>
+        {excused.length>0&&<div style={{position:'absolute',top:8,left:8,background:'rgba(0,0,0,.35)',borderRadius:10,padding:'6px 10px',zIndex:5,maxWidth:'40%'}}>
+          <div style={{fontSize:8,fontWeight:700,color:'rgba(255,255,255,.6)',textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>Omluveni</div>
+          {excused.map(p=><div key={p.id} style={{fontSize:9,color:'rgba(255,255,255,.7)',padding:'2px 0',display:'flex',alignItems:'center',gap:4}}>
             <div style={{width:16,height:16,borderRadius:'50%',background:'rgba(255,255,255,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7,fontWeight:700,color:'rgba(255,255,255,.8)'}}>{p.name.split(' ').map(w=>w[0]).join('')}</div>
-            <span>{pName(p)}</span>
+            <span>{pName(p)} – {(m.excuses||{})[p.name]}</span>
           </div>)}
         </div>}
-        {/* Hráči na hřišti */}
         {lp.map((p,i)=>{const{x,y}=defPos(p,i);return <div className="fp" key={p.id} style={{left:x+'%',top:y+'%',transform:'translate(-50%,-50%)'}} onMouseDown={e=>onDrag(p.id,e)} onTouchStart={e=>onDrag(p.id,e)}><div className="fc">{p.name.split(' ').map(w=>w[0]).join('')}</div><div className="fn">{pName(p)}</div></div>})}
-      </div>})()}
+      </div>})()}</>:null})()}
     <AttBlock kind="matches" ev={m}/>
     <EvMeta ev={m}/>
   </div>)};const upcoming=T.matches.filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date));const past=T.matches.filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)); return (<div><div className="ph"><div className="pt">Zápasy</div><button className="ba" onClick={()=>setMod("aM")}><Ic.Plus/> Přidat</button></div>
