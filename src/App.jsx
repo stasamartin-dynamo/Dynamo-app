@@ -776,7 +776,7 @@ export default function App() {
           </div>
         </div>
         <div className="cnt">
-          <div className="top" style={{background:`linear-gradient(90deg,#0c2d48,${tInfo.color}22)`}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div><button className="hb" onClick={()=>{setNO(true);mAR()}}><Ic.Bell/>{uN>0&&<span className="dot"/>}</button></div>
+          <div className="top" style={{background:`linear-gradient(90deg,#0c2d48,${tInfo.color}22)`}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div></div>
           <div className="ms">{pages[pg]?pages[pg]():pgHome()}</div>
         </div>
       </div>
@@ -788,10 +788,6 @@ export default function App() {
         </div>
         {viewPhoto.url&&<img src={viewPhoto.url} alt="" style={{maxWidth:'95%',maxHeight:'80vh',borderRadius:8,objectFit:'contain'}} onClick={e=>e.stopPropagation()}/>}
         {viewPhoto.caption&&<div style={{color:'#fff',fontSize:13,marginTop:10,opacity:.8}}>{viewPhoto.caption}</div>}
-      </div>}
-      {nO&&<div className="np"><div style={{padding:14,borderBottom:'1px solid var(--b)',display:'flex',justifyContent:'space-between'}}><div style={{fontFamily:'var(--fd)',fontSize:14,textTransform:'uppercase'}}>Oznámení</div><button className="hb" onClick={()=>setNO(false)}><Ic.X/></button></div>
-        {(T.notifications||[]).length===0&&<div className="es" style={{marginTop:30}}><p>Žádná oznámení</p></div>}
-        {[...(T.notifications||[])].reverse().map(n=> <div style={{padding:'12px 14px',borderBottom:'1px solid var(--b)',display:'flex',gap:9,background:!n.read?'rgba(26,138,171,.08)':'transparent'}} key={n.id}><div style={{width:8,height:8,borderRadius:'50%',background:n.read?'var(--b2)':'var(--ac)',marginTop:5,flexShrink:0}}/><div><div style={{fontSize:12,color:'var(--t2)'}}>{n.text}</div><div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>{fd(n.date)}</div></div></div>)}
       </div>}
     </div>
   );
