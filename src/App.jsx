@@ -202,19 +202,30 @@ export default function App() {
   const tPN=i=>saveT({...T,news:T.news.map(a=>a.id===i?{...a,pinned:!a.pinned}:a)});
   const apA=i=>saveT({...T,absences:T.absences.map(a=>a.id===i?{...a,status:"approved"}:a)});
   const vP=(pi,ix)=>saveT({...T,polls:T.polls.map(p=>p.id===pi?{...p,options:p.options.map((o,i)=>i===ix?{...o,votes:o.votes+1}:o)}:p)});
-  const togAtt=(kind,evId,name)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,attendance:{...(e.attendance||{}),[name]:!(e.attendance||{})[name]}}:e)})};
+  const togAtt=(kind,evId,name,val)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,attendance:{...(e.attendance||{}),[name]:val}}:e)})};
+  const setExcuse=(kind,evId,name,reason)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,excuses:{...(e.excuses||{}),[name]:reason}}:e)})};
   const addDocToMeet=(mtId,doc)=>{saveT({...T,meetings:T.meetings.map(m=>m.id===mtId?{...m,docs:[...(m.docs||[]),doc]}:m)})};
+  const openDoc=(doc)=>{try{const w=window.open();if(w){if(doc.data.startsWith('data:image')){w.document.write('<img src="'+doc.data+'" style="max-width:100%"/>')}else{w.document.write('<iframe src="'+doc.data+'" style="width:100%;height:100vh;border:none"></iframe>')}w.document.title=doc.name}}catch{const a=document.createElement('a');a.href=doc.data;a.download=doc.name;a.click()}};
   const mAR=()=>saveT({...T,notifications:(T.notifications||[]).map(n=>({...n,read:true}))});
   const uN=(T.notifications||[]).filter(n=>!n.read).length;
   const nxM=(T.matches||[]).filter(m=>!m.result).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const nxT=(T.trainings||[]).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const names=isV?(T.contacts||[]).map(c=>c.name):(T.players||[]).map(p=>p.name);
 
-  const AttBlock=({kind,ev})=>{const att=ev.attendance||{};const yc=names.filter(n=>att[n]).length;
-    return (<div className="att"><div style={{fontSize:11,fontWeight:600,color:'var(--t2)',marginBottom:6}}>Účast: {yc}/{names.length}</div>
-    {names.map(n=> (<div className="att-row" key={n}><input type="checkbox" className="att-cb" checked={!!att[n]} onChange={()=>togAtt(kind,ev.id,n)}/><span className="att-name">{n}</span></div>))}</div>)};
+  const AttBlock=({kind,ev})=>{const att=ev.attendance||{};const exc=ev.excuses||{};const yc=names.filter(n=>att[n]).length;const nc=names.filter(n=>exc[n]).length;
+    return (<div className="att"><div style={{fontSize:11,fontWeight:600,color:'var(--t2)',marginBottom:6}}>Účast: {yc} přijde · {nc} omluveno · {names.length-yc-nc} neznámo</div>
+    {names.map(n=> {const isAtt=!!att[n];const isExc=!!exc[n];
+      return (<div className="att-row" key={n} style={{flexWrap:'wrap'}}>
+        <input type="checkbox" className="att-cb" checked={isAtt} onChange={()=>{if(!isAtt){togAtt(kind,ev.id,n,true);if(isExc)setExcuse(kind,ev.id,n,"")}else{togAtt(kind,ev.id,n,false)}}}/>
+        <span className="att-name" style={{color:isAtt?'var(--g)':isExc?'var(--r)':'var(--t)'}}>{n}</span>
+        {isExc&&<span style={{fontSize:10,color:'var(--r)',marginLeft:4}}>– {exc[n]}</span>}
+        {!isAtt&&!isExc&&<div style={{marginLeft:'auto',display:'flex',gap:4}}>
+          {["Nemoc","Zranění","Rodina","Škola","Jiné"].map(r=> <button key={r} style={{fontSize:9,padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--r)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,r)}>{r}</button>)}
+        </div>}
+        {isExc&&<button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,"")}>Zrušit omluvu</button>}
+      </div>)})}</div>)};
 
-  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"contacts",l:"Adresář",i: <Ic.Book/>,dv:true},{k:"absences",l:"Omluvy",i: <Ic.XC/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
+  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"contacts",l:"Adresář",i: <Ic.Book/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
   const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"chat",l:"Chat",i: <Ic.Chat/>}];
   const nav=isV?navVybor:navTeam;
 
@@ -236,7 +247,7 @@ export default function App() {
     {(m.lineup||[]).length>0&&<div className="lf">{(()=>{const lp=T.players.filter(p=>(m.lineup||[]).includes(p.id));const R=({a})=>a.length>0? <div className="fr">{a.map(p=> <div className="fp" key={p.id}><div className="fc">{p.number}</div><div className="fn">{p.name.split(' ')[0]}</div></div>)}</div>:null; return (<><R a={lp.filter(p=>p.position==="Útočník")}/><R a={lp.filter(p=>p.position==="Záložník")}/><R a={lp.filter(p=>p.position==="Obránce")}/><R a={lp.filter(p=>p.position==="Brankář")}/></>)})()}</div>}
     <AttBlock kind="matches" ev={m}/>
   </div>)} return (<div><div className="ph"><div className="pt">Zápasy</div><button className="ba" onClick={()=>setMod("aM")}><Ic.Plus/> Přidat</button></div>
-    {T.matches.filter(m=>!m.result).sort((a,b)=>a.date.localeCompare(b.date)).map(m=> <div className="c2" key={m.id} onClick={()=>setSelM(m)}><div className="cr"><div><div className="ctt">vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.time}</div></div><div style={{display:'flex',gap:5}}><span className={`tg ${m.location==="Domácí"?"th":"ta"}`}>{m.location==="Domácí"?"Doma":"Venku"}</span><button className="ib d" onClick={e=>{e.stopPropagation();del("matches",m.id)}}><Ic.Del/></button></div></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>Účast: {names.filter(n=>(m.attendance||{})[n]).length}/{names.length}</div></div>)}
+    {T.matches.filter(m=>!m.result).sort((a,b)=>a.date.localeCompare(b.date)).map(m=> <div className="c2" key={m.id} onClick={()=>setSelM(m)}><div className="cr"><div><div className="ctt">vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.time}</div></div><div style={{display:'flex',gap:5}}><span className={`tg ${m.location==="Domácí"?"th":"ta"}`}>{m.location==="Domácí"?"Doma":"Venku"}</span><button className="ib d" onClick={e=>{e.stopPropagation();del("matches",m.id)}}><Ic.Del/></button></div></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(m.attendance||{})[n]).length} · ✗ {names.filter(n=>(m.excuses||{})[n]).length} · ? {names.length-names.filter(n=>(m.attendance||{})[n]).length-names.filter(n=>(m.excuses||{})[n]).length}</div></div>)}
     {T.matches.filter(m=>m.result).length>0&&<div className="lb" style={{marginTop:12}}>Odehrané</div>}
     {T.matches.filter(m=>m.result).map(m=> <div className="c2" key={m.id} onClick={()=>setSelM(m)}><div className="cr"><div><div className="ctt">vs {m.opponent}</div><div className="css2">{fd(m.date)} · {m.result}</div></div><span className="tg th">{m.type}</span></div></div>)}</div>)};
 
@@ -246,18 +257,18 @@ export default function App() {
     {t.notes&&<div style={{fontSize:12,color:'var(--t2)',marginBottom:12,fontStyle:'italic'}}>{t.notes}</div>}
     <AttBlock kind="trainings" ev={t}/>
   </div>)} return (<div><div className="ph"><div className="pt">Tréninky</div><button className="ba" onClick={()=>setMod("aT")}><Ic.Plus/></button></div>
-    {T.trainings.sort((a,b)=>a.date.localeCompare(b.date)).map(t=> <div className="c2" key={t.id} onClick={()=>setSelM(t)}><div className="cr"><div><div className="ctt">{t.focus}</div><div className="css2">{fd(t.date)} · {t.time} · {t.duration}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("trainings",t.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>Účast: {names.filter(n=>(t.attendance||{})[n]).length}/{names.length}</div></div>)}</div>)};
+    {T.trainings.sort((a,b)=>a.date.localeCompare(b.date)).map(t=> <div className="c2" key={t.id} onClick={()=>setSelM(t)}><div className="cr"><div><div className="ctt">{t.focus}</div><div className="css2">{fd(t.date)} · {t.time} · {t.duration}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("trainings",t.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(t.attendance||{})[n]).length} · ✗ {names.filter(n=>(t.excuses||{})[n]).length} · ? {names.length-names.filter(n=>(t.attendance||{})[n]).length-names.filter(n=>(t.excuses||{})[n]).length}</div></div>)}</div>)};
 
   const pgMeetings=()=>{if(selMt){const m=T.meetings.find(x=>x.id===selMt.id)||selMt; return (<div>
     <button style={{display:'flex',alignItems:'center',gap:5,marginBottom:12,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setSelMt(null)}><Ic.Bk/> Zpět</button>
     <div className="pt" style={{marginBottom:8}}>{m.topic}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time} · {m.location}</div>
-    <div className="lb">Dokumenty</div>
-    <div className="doc-list">{(m.docs||[]).map((d,i)=> <a key={i} href={d.data} download={d.name} className="doc-item" style={{cursor:'pointer',textDecoration:'none'}}><Ic.Doc/> {d.name}</a>)}</div>
-    <div style={{marginTop:8}}><input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" id={`doc-${m.id}`} style={{fontSize:11,color:'var(--t2)'}}/><button className="ba" style={{marginTop:6,fontSize:10}} onClick={()=>{const f=document.getElementById(`doc-${m.id}`).files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f)}}>Nahrát dokument</button></div>
+    <div className="lb">Dokumenty ({(m.docs||[]).length})</div>
+    <div className="doc-list">{(m.docs||[]).map((d,i)=> <button key={i} onClick={()=>openDoc(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button>)}</div>
+    <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
     <AttBlock kind="meetings" ev={m}/>
   </div>)} return (<div><div className="ph"><div className="pt">Schůze výboru</div><button className="ba" onClick={()=>setMod("aMt")}><Ic.Plus/> Nová</button></div>
     {T.meetings.length===0&&<div className="es"><p>Žádné schůze</p></div>}
-    {T.meetings.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)}><div className="cr"><div><div className="ctt">{m.topic}</div><div className="css2">{fd(m.date)} · {m.time} · {m.location}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("meetings",m.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>Účast: {names.filter(n=>(m.attendance||{})[n]).length}/{names.length} · Docs: {(m.docs||[]).length}</div></div>)}</div>)};
+    {T.meetings.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)}><div className="cr"><div><div className="ctt">{m.topic}</div><div className="css2">{fd(m.date)} · {m.time} · {m.location}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("meetings",m.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {names.filter(n=>(m.attendance||{})[n]).length} · ✗ {names.filter(n=>(m.excuses||{})[n]).length} · Docs: {(m.docs||[]).length}</div></div>)}</div>)};
 
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
     {T.players.sort((a,b)=>a.number-b.number).map(p=> <div className="pr" key={p.id}><div className="pnn">{p.number}</div><div style={{flex:1}}><div style={{fontWeight:600,fontSize:12}}>{p.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>{p.position} · {p.birthYear}</div></div><button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button></div>)}</div>);
@@ -307,7 +318,7 @@ export default function App() {
     </div></div>);
     return null};
 
-  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,contacts:pgCt,news:pgNw,chat:pgChat,absences:pgAbs,polls:pgPo,photos:pgPh,meetings:pgMeetings};
+  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings};
 
   return (
     <div><style>{S}</style>
