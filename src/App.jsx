@@ -78,6 +78,22 @@ DEF.teams["starsi-zaci"].matches=[
 {id:"szm10",date:"2026-06-07",time:"10:00",opponent:"SDM Velké Němčice/Nosislav",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"szm11",date:"2026-06-13",time:"10:00",opponent:"SDM Podluží/Tvrdonice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""}
 ];
+DEF.teams["starsi-pripravka"].players=[
+{id:"sp1",name:"Viktorie Říhová",number:0,position:"",birthYear:2014},
+{id:"sp2",name:"Ema Straubová",number:0,position:"",birthYear:2014},
+{id:"sp3",name:"Štěpán Bejdák",number:0,position:"",birthYear:2015},
+{id:"sp4",name:"Nikol Dudová",number:0,position:"",birthYear:2015},
+{id:"sp5",name:"Tadeáš Lapčík",number:0,position:"",birthYear:2015},
+{id:"sp6",name:"Matyáš Lukáč",number:0,position:"",birthYear:2015},
+{id:"sp7",name:"Jakub Růžička",number:0,position:"",birthYear:2015},
+{id:"sp8",name:"Terezie Tanasie",number:0,position:"",birthYear:2015},
+{id:"sp9",name:"Denys Mula",number:0,position:"",birthYear:2015},
+{id:"sp10",name:"Nela Chmelinová",number:0,position:"",birthYear:2015},
+{id:"sp11",name:"Daniel Barták",number:0,position:"",birthYear:2016},
+{id:"sp12",name:"Jakub Štěpaník",number:0,position:"",birthYear:2016},
+{id:"sp13",name:"Richard Zajíček",number:0,position:"",birthYear:2016},
+{id:"sp14",name:"Justýna Lukáčová",number:0,position:"",birthYear:2016}
+];
 DEF.teams["starsi-pripravka"].matches=[
 {id:"spm1",date:"2026-04-04",time:"09:00",opponent:"TJ Sokol Pohořelice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
 {id:"spm2",date:"2026-04-12",time:"10:00",opponent:"TJ START Vlasatice",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
