@@ -15,7 +15,7 @@ const db = getFirestore(fbApp);
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#7c3aed",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#ca8a04",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
 const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[],votings:[]});
-const DEF={teams:{}};
+const DEF={teams:{},clubEvents:[]};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
 DEF.teams["a-tym"].matches=[
 {id:"am1",date:"2026-03-22",time:"15:00",opponent:"Týnec/Hrušky",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
@@ -277,6 +277,15 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .att-name{font-size:12px;font-weight:500;flex:1}
 .doc-list{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
 .doc-item{display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--cd);border:1px solid var(--b);border-radius:16px;font-size:11px;color:var(--ac)}
+.ce-panel{width:100%;max-width:380px;margin-top:16px}
+.ce-card{background:var(--cd);border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 2px 10px rgba(14,116,144,.06);position:relative}
+.ce-card .ce-title{font-weight:700;font-size:12px;margin-bottom:3px}
+.ce-card .ce-date{font-size:10px;color:var(--t3)}
+.ce-card .ce-desc{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ce-more{text-align:center;padding:6px;font-size:11px;color:var(--ac);font-weight:600;cursor:pointer;font-family:var(--f)}
+.ce-dots{display:flex;gap:4px;justify-content:center;margin-top:4px}
+.ce-dots span{width:6px;height:6px;border-radius:50%;background:var(--b2)}
+.ce-dots span.a{background:var(--ac)}
 `;
 
 export default function App() {
@@ -284,7 +293,7 @@ export default function App() {
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
   const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [selVt,setSelVt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
-  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const ce=useRef(null);
+  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
 
   useEffect(()=>{
     const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
@@ -299,12 +308,48 @@ export default function App() {
   if(!ok) return (<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#daf0f7',color:'#1a8aab'}}>Načítání...</div>);
   if(!D) return null;
 
+  const cEvents=(D.clubEvents||[]).sort((a,b)=>b.date.localeCompare(a.date));
+  const addCE=(ev)=>{save({...D,clubEvents:[...(D.clubEvents||[]),{...ev,id:"ce_"+uid(),date:now(),docs:[]}]});setCeMod(null)};
+  const delCE=(id)=>save({...D,clubEvents:(D.clubEvents||[]).filter(e=>e.id!==id)});
+  const addDocToCE=(ceId,doc)=>save({...D,clubEvents:(D.clubEvents||[]).map(e=>e.id===ceId?{...e,docs:[...(e.docs||[]),doc]}:e)});
+  const fd0=d=>{try{return new Date(d.includes?.('T')?d:d+"T00:00:00").toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'})}catch{return d}};
+  const dlDoc0=(doc)=>{try{const parts=doc.data.split(',');const mime=parts[0].match(/:(.*?);/)[1];const bin=atob(parts[1]);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);const blob=new Blob([arr],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=doc.name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}catch(e){console.error(e)}};
+  const openDoc0=(doc)=>{const w=window.open('','_blank');if(w){w.document.write('<!DOCTYPE html><html><head><title>'+doc.name+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:sans-serif;background:#f0f0f0}.bar{padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:12px;align-items:center;position:sticky;top:0;z-index:10}.bar button{color:#1a8aab;font-weight:600;font-size:14px;background:none;border:none;cursor:pointer}.cnt{padding:16px;text-align:center}</style></head><body><div class="bar"><button onclick="window.close()">← Zavřít</button><span style="color:#666;font-size:13px">'+doc.name+'</span></div><div class="cnt">'+(doc.data.startsWith('data:image')?'<img src="'+doc.data+'" style="max-width:100%;border-radius:8px"/>':'<iframe src="'+doc.data+'" style="width:100%;height:85vh;border:none;border-radius:8px"></iframe>')+'</div></body></html>');w.document.close()}};
+
   const hp=d=>{setPE(false);if(d==="back"){setPin(p=>p.slice(0,-1));return}const n=pin+d;setPin(n);if(n.length===4){const tPin=TEAMS.find(t=>t.id===team)?.pin;if(n===tPin){setAuth(true);setPin("")}else{setPE(true);setTimeout(()=>{setPin("");setPE(false)},600)}}};
 
   if(!team) return (
-    <div><style>{S}</style><div className="ts-screen">
-      <div style={{marginBottom:24,textAlign:'center'}}><img src="/icon-192.png" width="80" height="80" style={{borderRadius:20,marginBottom:8}} alt=""/><div className="LT">TJ Dynamo</div><div style={{fontFamily:'var(--fd)',fontSize:14,color:'var(--t2)',textTransform:'uppercase',letterSpacing:3}}>Drnholec</div></div>
-      <div className="ts-grid">
+    <div><style>{S}</style><div className="ts-screen" style={{justifyContent:'flex-start',paddingTop:20}}>
+      <div style={{textAlign:'center',flexShrink:0}}><img src="/icon-192.png" width="56" height="56" style={{borderRadius:14,marginBottom:6}} alt=""/><div style={{fontFamily:'var(--fd)',fontSize:20,textTransform:'uppercase'}}>TJ Dynamo</div><div style={{fontFamily:'var(--fd)',fontSize:11,color:'var(--t2)',textTransform:'uppercase',letterSpacing:3}}>Drnholec</div></div>
+
+      {ceDetail?(<div style={{width:'100%',maxWidth:380,marginTop:12}}>
+        <button style={{display:'flex',alignItems:'center',gap:5,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer',marginBottom:10}} onClick={()=>setCeDetail(null)}><Ic.Bk/> Zpět</button>
+        <div style={{background:'var(--cd)',borderRadius:16,padding:16,boxShadow:'0 2px 12px rgba(14,116,144,.08)'}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{ceDetail.title}</div>
+          <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>{fd0(ceDetail.date)} · {ceDetail.createdBy||""}</div>
+          {ceDetail.description&&<div style={{fontSize:12,color:'var(--t2)',lineHeight:1.5,marginBottom:10}}>{ceDetail.description}</div>}
+          <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',marginBottom:6}}>Dokumenty / Fotky ({(ceDetail.docs||[]).length})</div>
+          <div className="doc-list">{((D.clubEvents||[]).find(e=>e.id===ceDetail.id)?.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer'}}>⬇</button></div>)}</div>
+          <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToCE(ceDetail.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+        </div>
+      </div>)
+
+      :(<><div className="ce-panel" style={{flexShrink:0}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+          <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1}}>Klubové události</div>
+          <button className="ba" style={{fontSize:10,padding:'4px 10px'}} onClick={()=>setCeMod(true)}><Ic.Plus/></button>
+        </div>
+        {cEvents.length===0&&<div style={{textAlign:'center',fontSize:11,color:'var(--t3)',padding:10}}>Žádné události</div>}
+        {(ceAll?cEvents:cEvents.slice(0,2)).map(ev=> <div className="ce-card" key={ev.id} onClick={()=>setCeDetail(ev)}>
+          <div style={{display:'flex',justifyContent:'space-between'}}><div className="ce-title">{ev.title}</div><button className="ib d" onClick={e=>{e.stopPropagation();delCE(ev.id)}} style={{padding:3}}><Ic.Del/></button></div>
+          <div className="ce-date">{fd0(ev.date)}{(ev.docs||[]).length>0&&<span> · 📎 {(ev.docs||[]).length}</span>}</div>
+          {ev.description&&<div className="ce-desc">{ev.description}</div>}
+        </div>)}
+        {cEvents.length>2&&!ceAll&&<div className="ce-more" onClick={()=>setCeAll(true)}>Zobrazit dalších {cEvents.length-2} ▾</div>}
+        {ceAll&&cEvents.length>2&&<div className="ce-more" onClick={()=>setCeAll(false)}>Skrýt ▴</div>}
+      </div>
+
+      <div className="ts-grid" style={{flexShrink:0}}>
         {TEAMS.map(t=> {
           const icons={["a-tym"]: "A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["vybor"]:"V"};
           const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:(D.teams[t.id]?.players||[]).length;
@@ -314,12 +359,20 @@ export default function App() {
             <div style={{position:'absolute',top:0,left:0,width:4,height:'100%',background:t.color,borderRadius:'0 4px 4px 0'}}/>
             <div className="ts-dot" style={{background:t.color}}>{icons[t.id]}</div>
             <div style={{flex:1}}><div className="ts-name">{t.name}</div>
-              <div className="ts-sub"><span>👥 {cnt}</span><span>📅 {evCnt} událostí</span></div>
+              <div className="ts-sub"><span>👥 {cnt}</span><span>📅 {evCnt}</span></div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
           </button>);
         })}
-      </div>
+      </div></>)}
+
+      {ceMod&&<div className="mo" onClick={()=>setCeMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setCeMod(null)}><Ic.XC/></button><div className="mlt">Nová událost klubu</div>
+        <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);addCE({title:f.get('ti'),description:f.get('ds'),createdBy:f.get('fr')})}}>
+        <div className="fg"><label className="fl">Název události</label><input name="ti" className="fi" required/></div>
+        <div className="fg"><label className="fl">Popis</label><textarea name="ds" className="fi ft2"/></div>
+        <div className="fg"><label className="fl">Autor</label><input name="fr" className="fi" required/></div>
+        <button type="submit" className="fs">Vytvořit událost</button>
+        </form></div></div>}
     </div></div>
   );
 
@@ -477,7 +530,7 @@ export default function App() {
     </div>
     <div className="pt" style={{marginBottom:8,opacity:m.done?.5:1}}>{m.topic}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time} · {m.location}</div>
     <div className="lb">Dokumenty ({(m.docs||[]).length})</div>
-    <div className="doc-list">{(m.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
+    <div className="doc-list">{(m.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
     <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
     <AttBlock kind="meetings" ev={m}/>
     <EvMeta ev={m}/>
@@ -509,7 +562,7 @@ export default function App() {
     <div style={{fontSize:10,color:'var(--t3)',marginBottom:12}}>Datum: {fd(v.date)} · Vytvořil: {v.createdBy}</div>
 
     <div className="lb">Dokumenty ({(v.docs||[]).length})</div>
-    <div className="doc-list">{(v.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
+    <div className="doc-list">{(v.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
     <div style={{marginTop:8,marginBottom:16}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToVoting(v.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
 
     <div className="lb">Výsledek hlasování</div>
@@ -697,7 +750,7 @@ export default function App() {
       {viewPhoto&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',zIndex:260,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}} onClick={()=>setViewPhoto(null)}>
         <div style={{position:'absolute',top:12,right:12,left:12,display:'flex',justifyContent:'space-between',zIndex:2}}>
           <button onClick={()=>setViewPhoto(null)} style={{background:'rgba(255,255,255,.15)',border:'none',color:'#fff',padding:'8px 16px',borderRadius:20,fontSize:13,fontFamily:'var(--f)',fontWeight:600,cursor:'pointer'}}>← Zavřít</button>
-          <button onClick={e=>{e.stopPropagation();if(viewPhoto.url)dlDoc({name:(viewPhoto.caption||"fotka")+".jpg",data:viewPhoto.url})}} style={{background:'rgba(255,255,255,.15)',border:'none',color:'#fff',padding:'8px 16px',borderRadius:20,fontSize:13,fontFamily:'var(--f)',fontWeight:600,cursor:'pointer'}}>⬇ Stáhnout</button>
+          <button onClick={e=>{e.stopPropagation();if(viewPhoto.url)dlDoc0({name:(viewPhoto.caption||"fotka")+".jpg",data:viewPhoto.url})}} style={{background:'rgba(255,255,255,.15)',border:'none',color:'#fff',padding:'8px 16px',borderRadius:20,fontSize:13,fontFamily:'var(--f)',fontWeight:600,cursor:'pointer'}}>⬇ Stáhnout</button>
         </div>
         {viewPhoto.url&&<img src={viewPhoto.url} alt="" style={{maxWidth:'95%',maxHeight:'80vh',borderRadius:8,objectFit:'contain'}} onClick={e=>e.stopPropagation()}/>}
         {viewPhoto.caption&&<div style={{color:'#fff',fontSize:13,marginTop:10,opacity:.8}}>{viewPhoto.caption}</div>}
