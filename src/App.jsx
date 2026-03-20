@@ -22,7 +22,7 @@ DEF.teams["a-tym"].matches=[{id:"m1",date:"2026-03-22",time:"15:00",opponent:"SK
 DEF.teams["a-tym"].news=[{id:"nw1",date:"2026-03-18T10:30:00",from:"Trenér",title:"Víkendový zápas",text:"Sraz v 14:00 u hřiště.",pinned:true,important:true}];
 DEF.teams["mladsi-pripravka"].players=[{id:"p1",name:"Jakub Malý",number:7,position:"Útočník",birthYear:2017},{id:"p2",name:"Filip Veselý",number:3,position:"Obránce",birthYear:2017}];
 DEF.teams["vybor"].contacts=[{id:"c1",name:"Karel Předseda",relation:"Předseda",phone:"+420 777 111 000",email:"karel@dynamo.cz"},{id:"c2",name:"Jana Pokladní",relation:"Pokladní",phone:"+420 608 222 000",email:"jana@dynamo.cz"}];
-const Ic={Home:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,Cal:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,Ppl:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,Cup:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M18 2H6v7a6 6 0 0012 0V2z"/></svg>,Cam:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,Chat:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,XC:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,X:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,Plus:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,Bk:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>,Chk:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>,Del:()=><svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,Pin:()=><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>,Out:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,Bell:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,Book:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>,Chart:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,Send:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,News:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>,Ball:()=><svg width="28" height="28" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#0e7490" strokeWidth="4"/><polygon points="50,22 61,34 57,48 43,48 39,34" fill="#0e7490"/><polygon points="28,56 25,42 36,34 44,44 38,56" fill="#0e7490"/><polygon points="72,56 75,42 64,34 56,44 62,56" fill="#0e7490"/><polygon points="36,72 42,60 58,60 64,72 50,80" fill="#0e7490"/></svg>,Grid:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,Meet:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,Doc:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>};
+const Ic={Home:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,Cal:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,Ppl:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,Cup:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M18 2H6v7a6 6 0 0012 0V2z"/></svg>,Cam:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,Chat:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,XC:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,X:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,Plus:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,Bk:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>,Chk:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>,Del:()=><svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,Pin:()=><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>,Out:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,Bell:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,Book:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>,Chart:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,Send:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,News:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>,Ball:()=><svg width="28" height="28" viewBox="0 0 100 100"><defs><radialGradient id="bgi" cx="38%" cy="35%" r="55%"><stop offset="0%" stopColor="#fff"/><stop offset="100%" stopColor="#e0e7ec"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#bgi)" stroke="#b8d4de" strokeWidth="2.5"/><path d="M50 24L58 32 54 44 46 44 42 32Z" fill="#0e7490"/><path d="M28 52L26 40 34 34 42 42 36 52Z" fill="#0e7490"/><path d="M72 52L74 40 66 34 58 42 64 52Z" fill="#0e7490"/><path d="M36 72L42 60 58 60 64 72 50 80Z" fill="#0e7490"/><path d="M46 44L38 50M54 44L62 50M42 32L36 28M58 32L64 28M50 24L50 16" stroke="#b8d4de" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>,Grid:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,Meet:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,Doc:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>};
 const LD=async()=>{return DEF};
 const SV=async d=>{try{await setDoc(doc(db,"app","data"),d)}catch(e){console.error("Save error:",e)}};
 const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;500;700&family=Archivo+Black&display=swap');
@@ -30,7 +30,7 @@ const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;
 :root{--bg:#daf0f7;--bg2:#c5e8f2;--bg3:#b0dcea;--cd:#ffffff;--cd2:#eef8fc;--ac:#1a8aab;--ac2:#15728e;--ag:rgba(26,138,171,.12);--g:#16a34a;--gb:rgba(22,163,74,.1);--r:#dc2626;--rb2:rgba(220,38,38,.1);--y:#ca8a04;--yb:rgba(202,138,4,.1);--o:#ea580c;--p:#7c3aed;--t:#0f2b3d;--t2:#3b6b82;--t3:#6a9bb2;--b:#b0dcea;--b2:#8ecadb;--rd:14px;--rs:10px;--f:'DM Sans',sans-serif;--fd:'Archivo Black',sans-serif}
 body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden}
 .shell{display:flex;height:100vh;max-width:720px;margin:0 auto;background:var(--bg)}
-.rail{width:64px;background:var(--bg2);border-right:1px solid var(--b);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:6px 0;scrollbar-width:none}
+.rail{width:64px;background:var(--cd);border-right:1px solid rgba(176,220,234,.5);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:6px 0;scrollbar-width:none;box-shadow:2px 0 12px rgba(14,116,144,.04)}
 .rail::-webkit-scrollbar{display:none}
 .rdv{width:28px;height:1px;background:var(--b2);margin:3px 0;flex-shrink:0}
 .ri{width:54px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 5px;color:var(--t3);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:8px;font-weight:600;position:relative;border-radius:10px;margin:1px 0;flex-shrink:0;transition:all .15s}
@@ -48,20 +48,21 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .pt{font-family:var(--fd);font-size:17px;text-transform:uppercase}
 .ba{display:flex;align-items:center;gap:5px;background:var(--ag);color:var(--ac);border:1.5px solid rgba(26,138,171,.3);border-radius:var(--rs);padding:7px 11px;font-size:11px;font-weight:600;font-family:var(--f);cursor:pointer}
-.c2{background:var(--cd);border:1px solid var(--b);border-radius:var(--rd);padding:13px;margin-bottom:9px;cursor:pointer;transition:background .15s}
-.c2:hover{background:var(--cd2)}
+.c2{background:var(--cd);border:none;border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(14,116,144,.05)}
+.c2:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,116,144,.1)}
 .cr{display:flex;align-items:center;justify-content:space-between}
 .ctt{font-weight:700;font-size:13px;margin-bottom:2px}.css2{font-size:11px;color:var(--t2)}
 .tg{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase}
 .th{background:var(--gb);color:var(--g)}.ta{background:var(--yb);color:var(--y)}
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.st{background:var(--cd);border:1px solid var(--b);border-radius:var(--rd);padding:14px 12px;cursor:pointer}
-.st:hover{background:var(--cd2)}
-.sn{font-family:var(--fd);font-size:24px;color:var(--ac);line-height:1;margin-bottom:2px}
-.sl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.st{background:var(--cd);border:none;border-radius:16px;padding:16px 14px;cursor:pointer;box-shadow:0 2px 10px rgba(14,116,144,.06);transition:all .2s;position:relative;overflow:hidden}
+.st::after{content:'';position:absolute;top:0;right:0;width:50px;height:50px;background:var(--ag);border-radius:0 0 0 50px;opacity:.5}
+.st:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(14,116,144,.1)}
+.sn{font-family:var(--fd);font-size:28px;color:var(--ac);line-height:1;margin-bottom:3px;position:relative;z-index:1}
+.sl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:1}
 .lb{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;margin-top:4px}
-.pr{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--cd);border:1px solid var(--b);border-radius:var(--rs);margin-bottom:6px}
-.pr:hover{background:var(--cd2)}
+.pr{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--cd);border:none;border-radius:16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(14,116,144,.05);transition:all .2s}
+.pr:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,116,144,.08)}
 .pnn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--ag);color:var(--ac);border-radius:8px;font-family:var(--fd);font-size:13px}
 .lf{background:linear-gradient(180deg,#15803d,#166534 50%,#14532d);border-radius:var(--rd);padding:16px 12px;margin-bottom:12px;position:relative;min-height:200px;overflow:hidden}
 .lf::before{content:'';position:absolute;top:50%;left:10%;right:10%;height:1px;background:rgba(255,255,255,.15)}
@@ -75,8 +76,8 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .ib{background:var(--bg);border:1px solid var(--b2);border-radius:7px;padding:6px;color:var(--t3);cursor:pointer;display:flex;align-items:center}
 .ib:hover{color:var(--t)}.ib.d:hover{color:var(--r);border-color:var(--r)}
 .es{text-align:center;padding:30px 16px;color:var(--t3)}
-.cx{display:flex;align-items:center;gap:11px;padding:12px;background:var(--cd);border:1px solid var(--b);border-radius:var(--rs);margin-bottom:6px}
-.ca{width:36px;height:36px;border-radius:50%;background:var(--ag);color:var(--ac);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;flex-shrink:0}
+.cx{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--cd);border:none;border-radius:16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(14,116,144,.05)}
+.ca{width:40px;height:40px;border-radius:12px;background:var(--ag);color:var(--ac);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:13px;flex-shrink:0}
 .cw{display:flex;flex-direction:column;height:100%}
 .cmg{flex:1;overflow-y:auto;padding:10px 0}
 .cbb{max-width:82%;margin-bottom:7px}.cbb.me{margin-left:auto}
@@ -90,9 +91,9 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .cip input{flex:1;padding:10px 14px;background:var(--cd);border:1.5px solid var(--b2);border-radius:24px;color:var(--t);font-size:13px;font-family:var(--f);outline:none}
 .cip input:focus{border-color:var(--ac)}
 .csb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--ac2),var(--ac));border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nw{background:var(--cd);border:1px solid var(--b);border-radius:var(--rd);padding:14px;margin-bottom:9px;position:relative}
-.nw.imp{border-left:3px solid var(--o)}.nw.pnd{border-left:3px solid var(--y)}
-.pc{background:var(--cd);border:1px solid var(--b);border-radius:var(--rd);padding:13px;margin-bottom:9px}
+.nw{background:var(--cd);border:none;border-radius:16px;padding:14px;margin-bottom:10px;position:relative;box-shadow:0 2px 8px rgba(14,116,144,.05)}
+.nw.imp{border-left:4px solid var(--o)}.nw.pnd{border-left:4px solid var(--y)}
+.pc{background:var(--cd);border:none;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(14,116,144,.05)}
 .pq{font-weight:700;font-size:13px;margin-bottom:8px}
 .pbw{display:flex;align-items:center;gap:7px;margin-bottom:4px}
 .pbl{font-size:11px;color:var(--t2);width:60px;flex-shrink:0}
@@ -114,7 +115,7 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .LS::before{content:'';position:absolute;top:-120px;right:-120px;width:350px;height:350px;background:radial-gradient(circle,rgba(26,138,171,.1),transparent 70%);border-radius:50%}
 .LT{font-family:var(--fd);font-size:24px;text-transform:uppercase;margin-bottom:4px}
 .LS2{font-size:13px;color:var(--t2);margin-bottom:6px}
-.LC{width:100%;max-width:340px;background:var(--cd);border:1px solid var(--b2);border-radius:var(--rd);padding:28px 24px;position:relative;z-index:1}
+.LC{width:100%;max-width:340px;background:var(--cd);border:none;border-radius:20px;padding:28px 24px;position:relative;z-index:1;box-shadow:0 8px 30px rgba(14,116,144,.1)}
 .PD{display:flex;gap:14px;justify-content:center;margin:24px 0 20px}
 .PD div{width:18px;height:18px;border-radius:50%;border:2px solid var(--b2);transition:all .2s}
 .PD .f{background:var(--ac);border-color:var(--ac);box-shadow:0 0 12px rgba(26,138,171,.3)}.PD .e{background:var(--r);border-color:var(--r)}
@@ -122,13 +123,17 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .KP button{padding:18px;background:var(--cd);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--t);font-size:22px;font-family:var(--fd);cursor:pointer;text-align:center;user-select:none}
 .KP button:active{background:var(--ag);border-color:var(--ac);transform:scale(.95)}
 .KP .x{visibility:hidden}.KP .bk{font-size:14px;font-family:var(--f);font-weight:600;color:var(--t2)}
-.ts-screen{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:linear-gradient(170deg,#c5e8f2,#daf0f7 40%,#b0dcea);overflow:hidden;position:relative}
-.ts-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px}
-.ts-btn{display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--cd);border:2px solid var(--b2);border-radius:var(--rd);cursor:pointer;transition:all .2s;width:100%;text-align:left;font-family:var(--f);color:var(--t)}
-.ts-btn:hover{background:var(--cd2);border-color:var(--t3)}
-.ts-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.ts-name{font-weight:700;font-size:15px}
-.ts-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.ts-screen{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(170deg,#c5e8f2,#daf0f7 40%,#b0dcea);overflow:auto;position:relative}
+.ts-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px}
+.ts-btn{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--cd);border:none;border-radius:16px;cursor:pointer;transition:all .25s;width:100%;text-align:left;font-family:var(--f);color:var(--t);box-shadow:0 2px 12px rgba(14,116,144,.08);position:relative;overflow:hidden}
+.ts-btn::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:0 4px 4px 0;transition:width .25s}
+.ts-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,116,144,.15)}
+.ts-btn:hover::before{width:6px}
+.ts-btn:active{transform:translateY(0)}
+.ts-dot{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:16px;color:#fff;font-weight:900}
+.ts-name{font-weight:700;font-size:15px;letter-spacing:-.3px}
+.ts-sub{font-size:11px;color:var(--t3);margin-top:3px;display:flex;align-items:center;gap:6px}
+.ts-sub span{display:flex;align-items:center;gap:3px}
 .att{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--rs)}
 .att-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b)}
 .att-row:last-child{border-bottom:none}
@@ -162,18 +167,22 @@ export default function App() {
 
   if(!team) return (
     <div><style>{S}</style><div className="ts-screen">
-      <div style={{color:'var(--ac)',marginBottom:16,opacity:.85}}><Ic.Ball/></div>
-      <div className="LT">TJ Dynamo Drnholec</div>
-      <div style={{color:'var(--t2)',fontSize:13,marginBottom:30}}>Vyberte sekci</div>
+      <div style={{marginBottom:24,textAlign:'center'}}><div style={{color:'var(--ac)',marginBottom:8,opacity:.85}}><Ic.Ball/></div><div className="LT">TJ Dynamo</div><div style={{fontFamily:'var(--fd)',fontSize:14,color:'var(--t2)',textTransform:'uppercase',letterSpacing:3}}>Drnholec</div></div>
       <div className="ts-grid">
-        {TEAMS.map(t=> (
-          <button key={t.id} className="ts-btn" onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
-            <div className="ts-dot" style={{background:t.color}}/>
-            <div><div className="ts-name">{t.name}</div>
-              <div className="ts-sub">{t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length+" členů":(D.teams[t.id]?.players||[]).length+" hráčů"}</div>
+        {TEAMS.map(t=> {
+          const icons={["a-tym"]: "A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["vybor"]:"V"};
+          const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:(D.teams[t.id]?.players||[]).length;
+          const evCnt=t.id==="vybor"?(D.teams[t.id]?.meetings||[]).length:((D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length);
+          return (
+          <button key={t.id} className="ts-btn" style={{"--tc":t.color}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
+            <div style={{position:'absolute',top:0,left:0,width:4,height:'100%',background:t.color,borderRadius:'0 4px 4px 0'}}/>
+            <div className="ts-dot" style={{background:t.color}}>{icons[t.id]}</div>
+            <div style={{flex:1}}><div className="ts-name">{t.name}</div>
+              <div className="ts-sub"><span>👥 {cnt}</span><span>📅 {evCnt} událostí</span></div>
             </div>
-          </button>
-        ))}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>);
+        })}
       </div>
     </div></div>
   );
