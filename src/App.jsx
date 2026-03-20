@@ -463,8 +463,9 @@ export default function App() {
   const openDoc=(doc)=>{const w=window.open('','_blank');if(w){w.document.write('<!DOCTYPE html><html><head><title>'+doc.name+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:sans-serif;background:#f0f0f0}.bar{padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:12px;align-items:center;position:sticky;top:0;z-index:10}.bar button,.bar a{color:#1a8aab;text-decoration:none;font-weight:600;font-size:14px;background:none;border:none;cursor:pointer}.cnt{padding:16px;text-align:center}</style></head><body><div class="bar"><button onclick="window.close()">← Zavřít</button><span style="color:#666;font-size:13px">'+doc.name+'</span></div><div class="cnt">'+(doc.data.startsWith('data:image')?'<img src="'+doc.data+'" style="max-width:100%;border-radius:8px"/>':'<iframe src="'+doc.data+'" style="width:100%;height:85vh;border:none;border-radius:8px"></iframe>')+'</div></body></html>');w.document.close()}};
   const mAR=()=>{try{navigator.clearAppBadge&&navigator.clearAppBadge()}catch{};saveT({...T,notifications:(T.notifications||[]).map(n=>({...n,read:true}))})};
   const uN=(T.notifications||[]).filter(n=>!n.read).length;
-  const nxM=(T.matches||[]).filter(m=>!m.result).sort((a,b)=>a.date.localeCompare(b.date))[0];
-  const nxT=(T.trainings||[]).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const nxM=(T.matches||[]).filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const nxT=(T.trainings||[]).filter(t=>!t.done).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const nxMt=isV?(T.meetings||[]).filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date))[0]:null;
   const names=isV?(T.contacts||[]).map(c=>c.name):(T.players||[]).map(p=>p.name);
 
   const AttBlock=({kind,ev})=>{const att=ev.attendance||{};const exc=ev.excuses||{};const yc=names.filter(n=>att[n]).length;const nc=names.filter(n=>exc[n]).length;
@@ -480,17 +481,38 @@ export default function App() {
         {isExc&&<button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,"")}>Zrušit omluvu</button>}
       </div>)})}</div>)};
 
-  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>,dv:true},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
-  const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
+  const navTeam=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>,dv:true},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
+  const navVybor=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
   const nav=isV?navVybor:navTeam;
 
-  const pgHome=()=>(<div>
+  const pgHome=()=>{
+    const doneM=(T.matches||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date));
+    const doneTr=(T.trainings||[]).filter(t=>t.done).sort((a,b)=>b.date.localeCompare(a.date));
+    const doneMt=isV?(T.meetings||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
+    const doneVt=isV?(T.votings||[]).filter(v=>v.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
+    const allDone=[...doneM.map(d=>({...d,_k:"match"})),...doneTr.map(d=>({...d,_k:"train"})),...doneMt.map(d=>({...d,_k:"meet"})),...doneVt.map(d=>({...d,_k:"vote"}))].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    return (<div>
     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}><div className="ts-dot" style={{background:tInfo.color,width:10,height:10}}/><div><div style={{fontFamily:'var(--fd)',fontSize:16,textTransform:'uppercase'}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
-    {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{T.meetings.length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasování</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
-    :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{T.matches.filter(m=>!m.result).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{T.trainings.length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
+    {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasování</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
+    :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
     {nxM&&!isV&&(<><div className="lb">Příští zápas</div><div className="c2" onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt">vs {nxM.opponent}</div><div className="css2">{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></>)}
-    {nxT&&!isV&&(<><div className="lb" style={{marginTop:8}}>Příští trénink</div><div className="c2" onClick={()=>go("trainings")}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time}</div></div></>)}
-  </div>);
+    {nxT&&!isV&&(<><div className="lb" style={{marginTop:8}}>Příští trénink</div><div className="c2" onClick={()=>go("trainings")}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div></>)}
+    {nxMt&&isV&&(<><div className="lb">Příští schůze</div><div className="c2" onClick={()=>go("meetings")}><div className="ctt">{nxMt.topic}</div><div className="css2">{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></>)}
+    {allDone.length>0&&<>
+      <div className="lb" style={{marginTop:16,display:'flex',alignItems:'center',gap:6}}><span style={{color:'#16a34a',fontSize:14}}>✓</span> Dokončeno ({allDone.length})</div>
+      {allDone.slice(0,5).map(d=> <div className="c2" key={d.id} style={{opacity:.85}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
+        <div className="cr">
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <span style={{color:'#16a34a',fontWeight:700,fontSize:13}}>✓</span>
+            <div><div className="ctt">{d._k==="match"?"vs "+d.opponent:d._k==="train"?d.focus:d._k==="meet"?d.topic:d.topic}</div>
+            <div className="css2">{fd(d.date)}{d.result?" · "+d.result:""}{d._k==="match"?" · Zápas":d._k==="train"?" · Trénink":d._k==="meet"?" · Schůze":" · Hlasování"}</div></div>
+          </div>
+          <span style={{background:'#16a34a',color:'#fff',padding:'3px 8px',borderRadius:10,fontSize:9,fontWeight:700,flexShrink:0}}>✓</span>
+        </div>
+      </div>)}
+      {allDone.length>5&&<div style={{textAlign:'center',fontSize:11,color:'var(--t3)',padding:6}}>a dalších {allDone.length-5}...</div>}
+    </>}
+  </div>)};
 
   const EvMeta=({ev})=>(<div style={{fontSize:9,color:'var(--t3)',marginTop:8,borderTop:'1px solid var(--b)',paddingTop:6}}>{ev.createdBy&&<span>Vytvořil: {ev.createdBy}</span>}{ev.editedBy&&<span style={{marginLeft:10}}>· Upravil: {ev.editedBy}</span>}</div>);
 
