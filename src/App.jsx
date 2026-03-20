@@ -364,32 +364,31 @@ export default function App() {
       </div>
 
       <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,width:'100%',maxWidth:380,marginBottom:8,marginTop:4}}>Klubové kategorie</div>
-      <div className="ts-grid" style={{flexShrink:0}}>
-        {TEAMS.filter(t=>t.id!=="treneri"&&t.id!=="vybor").map(t=> {
-          const icons={["a-tym"]:"A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP"};
-          const cnt=(D.teams[t.id]?.players||[]).length;
-          const evCnt=(D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length;
-          return (
-          <button key={t.id} className="ts-btn" style={{"--tc":t.color}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
-            <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:t.color,borderRadius:'0 0 4px 4px'}}/>
-            <div className="ts-dot" style={{background:t.color}}>{icons[t.id]}</div>
-            <div><div className="ts-name">{t.name}</div>
-              <div className="ts-sub"><span>👥 {cnt}</span><span>📅 {evCnt}</span></div>
-            </div>
-          </button>);
-        })}
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,width:'100%',maxWidth:380,flexShrink:0,marginTop:8}}>
-        {TEAMS.filter(t=>t.id==="treneri"||t.id==="vybor").map(t=>{
-          const icons={["treneri"]:"T",["vybor"]:"V"};
-          const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:t.id==="treneri"?(D.teams[t.id]?.tasks||[]).filter(tk=>tk.status!=="hotovo").length:0;
-          const lbl=t.id==="vybor"?"členů":t.id==="treneri"?"úkolů":"";
-          return <button key={t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',background:'var(--cd)',border:'none',borderRadius:14,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 10px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left'}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
-            <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:t.color}}/>
-            <div style={{width:32,height:32,borderRadius:10,background:t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:14,color:'#fff',fontWeight:900,flexShrink:0}}>{icons[t.id]}</div>
-            <div><div style={{fontWeight:700,fontSize:12}}>{t.name}</div><div style={{fontSize:9,color:'var(--t3)'}}>{cnt} {lbl}</div></div>
-          </button>})}
-      </div></>)}
+      {(()=>{const mkBtn=(t,icon)=>{const cnt=t.id==="vybor"?(D.teams[t.id]?.contacts||[]).length:t.id==="treneri"?(D.teams[t.id]?.tasks||[]).filter(tk=>tk.status!=="hotovo").length:(D.teams[t.id]?.players||[]).length;const evCnt=t.id==="vybor"||t.id==="treneri"?0:(D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length;const lbl=t.id==="vybor"?"členů":t.id==="treneri"?"zápisů":"";return{t,icon,cnt,evCnt,lbl}};
+      const rows=[[mkBtn(TEAMS.find(x=>x.id==="starsi-zaci"),"SŽ"),mkBtn(TEAMS.find(x=>x.id==="mladsi-zaci"),"MŽ")],[mkBtn(TEAMS.find(x=>x.id==="starsi-pripravka"),"SP"),mkBtn(TEAMS.find(x=>x.id==="mladsi-pripravka"),"MP")]];
+      const aTym=mkBtn(TEAMS.find(x=>x.id==="a-tym"),"A");
+      const bottom=[mkBtn(TEAMS.find(x=>x.id==="treneri"),"T"),mkBtn(TEAMS.find(x=>x.id==="vybor"),"V")];
+      const SqBtn=({d})=><button className="ts-btn" style={{"--tc":d.t.color}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
+        <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:d.t.color,borderRadius:'0 0 4px 4px'}}/>
+        <div className="ts-dot" style={{background:d.t.color}}>{d.icon}</div>
+        <div><div className="ts-name">{d.t.name}</div><div className="ts-sub"><span>👥 {d.cnt}</span>{d.evCnt>0&&<span>📅 {d.evCnt}</span>}</div></div>
+      </button>;
+      return <div style={{width:'100%',maxWidth:380,flexShrink:0}}>
+        {rows.map((row,ri)=><div key={ri} className="ts-grid" style={{marginBottom:8}}>{row.map(d=><SqBtn key={d.t.id} d={d}/>)}</div>)}
+        <button style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'14px 18px',background:'var(--cd)',border:'none',borderRadius:16,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 12px rgba(14,116,144,.08)',position:'relative',overflow:'hidden',transition:'all .2s',marginBottom:8}} onClick={()=>{setTeam("a-tym");setAuth(false);setPin("");setPg("home")}}>
+          <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:aTym.t.color}}/>
+          <div style={{width:44,height:44,borderRadius:14,background:aTym.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:20,color:'#fff',fontWeight:900,flexShrink:0}}>A</div>
+          <div style={{flex:1}}><div style={{fontWeight:700,fontSize:15}}>{aTym.t.name}</div><div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>👥 {aTym.cnt} · 📅 {aTym.evCnt}</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {bottom.map(d=><button key={d.t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',background:'var(--cd)',border:'none',borderRadius:14,cursor:'pointer',fontFamily:'var(--f)',color:'var(--t)',boxShadow:'0 2px 10px rgba(0,0,0,.06)',position:'relative',overflow:'hidden',transition:'all .2s',textAlign:'left'}} onClick={()=>{setTeam(d.t.id);setAuth(false);setPin("");setPg("home")}}>
+            <div style={{position:'absolute',top:0,left:0,width:'100%',height:3,background:d.t.color}}/>
+            <div style={{width:32,height:32,borderRadius:10,background:d.t.color,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--fd)',fontSize:14,color:'#fff',fontWeight:900,flexShrink:0}}>{d.icon}</div>
+            <div><div style={{fontWeight:700,fontSize:12}}>{d.t.name}</div><div style={{fontSize:9,color:'var(--t3)'}}>{d.cnt} {d.lbl}</div></div>
+          </button>)}
+        </div>
+      </div>})()}</>)}
 
       {ceMod&&<div className="mo" onClick={()=>setCeMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setCeMod(null)}><Ic.XC/></button>
         {ceMod?.type==="editCE"?(<><div className="mlt">Upravit událost</div>
@@ -462,7 +461,7 @@ export default function App() {
   const togVoteDone=(vtId)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,done:!v.done}:v)})};
   const addTask=(t)=>{saveT({...T,tasks:[{...t,id:"tk_"+uid(),date:now(),status:"přiděleno",createdBy:me||"?"},...(T.tasks||[])]});setMod(null)};
   const setTaskStatus=(tkId,status)=>{saveT({...T,tasks:(T.tasks||[]).map(t=>t.id===tkId?{...t,status}:t)})};
-  const delTask=(tkId)=>{if(!window.confirm("Opravdu smazat úkol?"))return;saveT({...T,tasks:(T.tasks||[]).filter(t=>t.id!==tkId)})};
+  const delTask=(tkId)=>{if(!window.confirm("Opravdu smazat zápis?"))return;saveT({...T,tasks:(T.tasks||[]).filter(t=>t.id!==tkId)})};
   const togDone=(kind,evId)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,done:!e.done}:e)})};
   const editEv=(kind,evId,updates)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,...updates,editedBy:me||"?"}:e)});setMod(null)};
   const sLU=(mi,pi)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,lineup:pi}:m)});
@@ -499,7 +498,7 @@ export default function App() {
 
   const navTeam=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"players",l:"Hráči",i: <Ic.Ppl/>,dv:true},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
   const navVybor=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
-  const navTreneri=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"tasks",l:"Úkoly",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
+  const navTreneri=[{k:"home",l:"Nástěnka",i: <Ic.Home/>},{k:"tasks",l:"Zápis",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
   const nav=isTr?navTreneri:isV?navVybor:navTeam;
 
   const pgHome=()=>{
@@ -520,14 +519,14 @@ export default function App() {
     </div>
 
     {/* Mini dlaždice */}
-    {isTr?(<div className="sg"><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status!=="hotovo").length}</div><div className="sl">Úkolů</div></div><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status==="hotovo").length}</div><div className="sl">Splněno</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div><div className="st" onClick={()=>go("polls")}><div className="sn">{T.polls.length}</div><div className="sl">Anket</div></div></div>)
+    {isTr?(<div className="sg"><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status!=="hotovo").length}</div><div className="sl">Zápisů</div></div><div className="st" onClick={()=>go("tasks")}><div className="sn">{(T.tasks||[]).filter(t=>t.status==="hotovo").length}</div><div className="sl">Splněno</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div><div className="st" onClick={()=>go("polls")}><div className="sn">{T.polls.length}</div><div className="sl">Anket</div></div></div>)
     :isV?(<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasov.</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
     :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
 
     {/* Trenéři - task dashboard */}
     {isTr&&(()=>{const tasks=(T.tasks||[]);const assigned=tasks.filter(t=>t.status==="přiděleno").length;const inProg=tasks.filter(t=>t.status==="zpracovávám").length;const done=tasks.filter(t=>t.status==="hotovo").length;
     return <div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
-      <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📋 Přehled úkolů</div>
+      <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📋 Přehled zápisů</div>
       <div style={{display:'flex',gap:5,marginBottom:6}}>
         <div style={{flex:1,background:'rgba(59,130,246,.08)',borderRadius:8,padding:'6px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:18,color:'#3b82f6'}}>{assigned}</div><div style={{fontSize:7,color:'var(--t3)',fontWeight:700}}>Přiděleno</div></div>
         <div style={{flex:1,background:'rgba(245,158,11,.08)',borderRadius:8,padding:'6px 4px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:18,color:'#f59e0b'}}>{inProg}</div><div style={{fontSize:7,color:'var(--t3)',fontWeight:700}}>Zpracovávám</div></div>
@@ -886,7 +885,7 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
     if(mod==="aPo") return (<FM title="Nová anketa" onS={f=>{const opts=f.get('op').split('\n').filter(x=>x.trim()).map(t=>({text:t.trim(),votes:0}));if(opts.length>=2)addPo({question:f.get('q'),options:opts})}} ch={<>{F("q","Otázka")}{F("op","Možnosti","textarea","Modrá\nČervená")}<button type="submit" className="fs">Vytvořit</button></>}/>);
     if(mod==="aMt") return (<FM title="Nová schůze" onS={f=>addMeet({date:f.get('d'),time:f.get('t'),location:f.get('l'),topic:f.get('tp')})} ch={<>{F("tp","Téma/program")}{F("d","Datum","date")}{F("t","Čas","time")}{F("l","Místo")}<button type="submit" className="fs">Vytvořit schůzi</button></>}/>);
     if(mod==="aVt") return (<FM title="Nové hlasování" onS={f=>addVoting({topic:f.get('tp'),description:f.get('ds')})} ch={<>{F("tp","Téma hlasování")}{F("ds","Popis / zdůvodnění","textarea","",false)}<button type="submit" className="fs">Vytvořit hlasování</button></>}/>);
-    if(mod==="aTk") return (<FM title="Nový úkol" onS={f=>addTask({title:f.get('ti'),description:f.get('ds'),assignee:f.get('as')})} ch={<>{F("ti","Název úkolu")}{F("ds","Popis","textarea","",false)}{F("as","Přiřadit komu","text","",false)}<button type="submit" className="fs">Vytvořit úkol</button></>}/>);
+    if(mod==="aTk") return (<FM title="Nový zápis" onS={f=>addTask({title:f.get('ti'),description:f.get('ds'),assignee:f.get('as')})} ch={<>{F("ti","Název zápisu")}{F("ds","Popis","textarea","",false)}<div className="fg"><label className="fl">Přiřadit</label><select name="as" className="fi"><option value="">-- vyberte --</option><option>Martin</option><option>Tibor</option><option>Petr</option><option>Pepa</option><option>Broňa</option><option>Michal</option><option>Marek</option></select></div><button type="submit" className="fs">Vytvořit zápis</button></>}/>);
     if(mod==="aPh") return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Přidat fotku</div>
       <div className="fg"><label className="fl">Vyberte fotku</label><input type="file" accept="image/*" id="ph-file" style={{width:'100%',padding:10,background:'var(--bg)',border:'1.5px solid var(--b2)',borderRadius:'var(--rs)',color:'var(--t)',fontSize:13,fontFamily:'var(--f)'}}/></div>
       <div className="fg"><label className="fl">Popis</label><input type="text" id="ph-cap" className="fi" placeholder="Popis fotky"/></div>
@@ -948,14 +947,14 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
   const taskColors={"přiděleno":"#3b82f6","zpracovávám":"#f59e0b","hotovo":"#16a34a"};
   const pgTasks=()=>{const tasks=(T.tasks||[]);const assigned=tasks.filter(t=>t.status==="přiděleno");const inProgress=tasks.filter(t=>t.status==="zpracovávám");const done=tasks.filter(t=>t.status==="hotovo");
     return (<div>
-    <div className="ph"><div className="pt">Úkoly</div><button className="ba" onClick={()=>setMod("aTk")}><Ic.Plus/> Nový</button></div>
+    <div className="ph"><div className="pt">Zápis</div><button className="ba" onClick={()=>setMod("aTk")}><Ic.Plus/> Nový</button></div>
     {/* Dashboard */}
     <div style={{display:'flex',gap:6,marginBottom:14}}>
       <div style={{flex:1,background:'rgba(59,130,246,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#3b82f6'}}>{assigned.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Přiděleno</div></div>
       <div style={{flex:1,background:'rgba(245,158,11,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#f59e0b'}}>{inProgress.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Zpracovávám</div></div>
       <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:10,padding:'8px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:20,color:'#16a34a'}}>{done.length}</div><div style={{fontSize:8,fontWeight:700,color:'var(--t3)'}}>Hotovo</div></div>
     </div>
-    {tasks.length===0&&<div className="es"><p>Žádné úkoly</p></div>}
+    {tasks.length===0&&<div className="es"><p>Žádné zápisy</p></div>}
     {["přiděleno","zpracovávám","hotovo"].map(st=>{const list=tasks.filter(t=>t.status===st);if(!list.length)return null;return <div key={st}>
       <div className="lb" style={{color:taskColors[st],display:'flex',alignItems:'center',gap:5}}><span style={{width:8,height:8,borderRadius:'50%',background:taskColors[st]}}/>{st==="přiděleno"?"Přiděleno":st==="zpracovávám"?"Zpracovávám":"Hotovo"} ({list.length})</div>
       {list.map(t=><div key={t.id} style={{background:'var(--cd)',borderRadius:12,padding:12,marginBottom:6,borderLeft:`4px solid ${taskColors[st]}`,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
