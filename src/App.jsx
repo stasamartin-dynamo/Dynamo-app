@@ -14,7 +14,7 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#7c3aed",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#ca8a04",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
-const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[]});
+const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[],votings:[]});
 const DEF={teams:{}};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
 DEF.teams["a-tym"].matches=[
@@ -282,7 +282,7 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 export default function App() {
   const [D,setD]=useState(null);const [ok,setOk]=useState(false);const [auth,setAuth]=useState(false);
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
-  const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [pin,setPin]=useState("");
+  const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [selVt,setSelVt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
   const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const ce=useRef(null);
 
@@ -350,7 +350,7 @@ export default function App() {
   const nt=(txt,s)=>{try{navigator.setAppBadge&&navigator.setAppBadge(1)}catch{};return {notifications:[...(T.notifications||[]),{id:"n_"+uid(),date:now(),text:txt,read:false}],badges:aB(s)}};
   const fd=d=>{try{return new Date(d.includes?.('T')?d:d+"T00:00:00").toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'})}catch{return d}};
   const ts=d=>{try{return new Date(d).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}catch{return''}};
-  const go=p=>{setPg(p);setSelM(null);setSelMt(null);cB(p)};
+  const go=p=>{setPg(p);setSelM(null);setSelMt(null);setSelVt(null);cB(p)};
   const del=(k,i)=>saveT({...T,[k]:(T[k]||[]).filter(x=>x.id!==i)});
 
   const addM=m=>{const n=nt("Zápas: "+m.opponent,"matches");saveT({...T,...n,matches:[...T.matches,{...m,id:"m_"+uid(),result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:me||"?",editedBy:""}]});setMod(null)};
@@ -367,6 +367,11 @@ export default function App() {
   const addAb=a=>{const n=nt("Omluvenka: "+a.playerName,"absences");saveT({...T,...n,absences:[...T.absences,{...a,id:"a_"+uid(),date:td(),status:"pending"}]});setMod(null)};
   const addPo=p=>{const n=nt("Anketa: "+p.question,"polls");saveT({...T,...n,polls:[{...p,id:"po_"+uid(),date:td(),active:true},...T.polls]});setMod(null)};
   const addMeet=m=>{const n=nt("Schůze: "+m.topic,"meetings");saveT({...T,...n,meetings:[{...m,id:"mt_"+uid(),attendance:{},excuses:{},docs:[],done:false,createdBy:me||"?",editedBy:""},...T.meetings]});setMod(null)};
+  const addVoting=v=>{const n=nt("Hlasování: "+v.topic,"votings");saveT({...T,...n,votings:[{...v,id:"vt_"+uid(),date:td(),votes:{},excuses:{},docs:[],done:false,createdBy:me||"?",editedBy:""},...(T.votings||[])]});setMod(null)};
+  const setVote=(vtId,name,val)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,votes:{...(v.votes||{}),[name]:val}}:v)})};
+  const setVExcuse=(vtId,name,reason)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,excuses:{...(v.excuses||{}),[name]:reason}}:v)})};
+  const addDocToVoting=(vtId,doc)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,docs:[...(v.docs||[]),doc]}:v)})};
+  const togVoteDone=(vtId)=>{saveT({...T,votings:(T.votings||[]).map(v=>v.id===vtId?{...v,done:!v.done}:v)})};
   const togDone=(kind,evId)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,done:!e.done}:e)})};
   const editEv=(kind,evId,updates)=>{saveT({...T,[kind]:T[kind].map(e=>e.id===evId?{...e,...updates,editedBy:me||"?"}:e)});setMod(null)};
   const sLU=(mi,pi)=>saveT({...T,matches:T.matches.map(m=>m.id===mi?{...m,lineup:pi}:m)});
@@ -401,12 +406,12 @@ export default function App() {
       </div>)})}</div>)};
 
   const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"stats",l:"Statistiky",i: <Ic.Chart/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
-  const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true}];
+  const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
   const nav=isV?navVybor:navTeam;
 
   const pgHome=()=>(<div>
     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}><div className="ts-dot" style={{background:tInfo.color,width:10,height:10}}/><div><div style={{fontFamily:'var(--fd)',fontSize:16,textTransform:'uppercase'}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
-    {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{T.meetings.length}</div><div className="sl">Schůzí</div></div></div>)
+    {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{T.meetings.length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasování</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
     :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{T.matches.filter(m=>!m.result).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{T.trainings.length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
     {nxM&&!isV&&(<><div className="lb">Příští zápas</div><div className="c2" onClick={()=>{go("matches");setTimeout(()=>setSelM(nxM),50)}}><div className="cr"><div><div className="ctt">vs {nxM.opponent}</div><div className="css2">{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></>)}
     {nxT&&!isV&&(<><div className="lb" style={{marginTop:8}}>Příští trénink</div><div className="c2" onClick={()=>go("trainings")}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time}</div></div></>)}
@@ -486,6 +491,54 @@ export default function App() {
 
   const getStats=(pName)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[pName]).length;const ta=dt.filter(t=>(t.attendance||{})[pName]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
 
+  const exportVoting=(v)=>{const vt=(T.votings||[]).find(x=>x.id===v.id)||v;const members=(T.contacts||[]).map(c=>c.name);const pro=members.filter(n=>(vt.votes||{})[n]==="pro");const proti=members.filter(n=>(vt.votes||{})[n]==="proti");const zdrzel=members.filter(n=>(vt.votes||{})[n]==="zdrzel");const omluven=members.filter(n=>(vt.excuses||{})[n]);const nehlasoval=members.filter(n=>!(vt.votes||{})[n]&&!(vt.excuses||{})[n]);
+    const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hlasování - ${vt.topic}</title><style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#333}h1{font-size:20px;border-bottom:2px solid #0e7490;padding-bottom:8px}h2{font-size:15px;color:#0e7490;margin-top:20px}.info{color:#666;font-size:13px;margin:4px 0}.result{display:flex;gap:30px;margin:16px 0;padding:16px;background:#f0f9fc;border-radius:8px}.result div{text-align:center}.result .n{font-size:28px;font-weight:900}.result .l{font-size:11px;color:#666;text-transform:uppercase}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;font-size:13px}th{background:#0e7490;color:#fff}.pro{color:#16a34a;font-weight:700}.proti{color:#dc2626;font-weight:700}.zdrzel{color:#ca8a04}.omluven{color:#666;font-style:italic}.docs{margin:12px 0}.docs span{display:inline-block;padding:4px 10px;background:#e0f2fe;border-radius:12px;font-size:12px;margin:2px}@media print{body{margin:20px}}</style></head><body><h1>TJ Dynamo Drnholec — Výbor</h1><h2>Hlasování: ${vt.topic}</h2><div class="info">Datum: ${fd(vt.date)}</div><div class="info">Vytvořil: ${vt.createdBy||"?"}</div>${(vt.docs||[]).length>0?'<div class="docs"><strong>Dokumenty:</strong> '+(vt.docs||[]).map(d=>'<span>📄 '+d.name+'</span>').join(' ')+'</div>':''}<div class="result"><div><div class="n" style="color:#16a34a">${pro.length}</div><div class="l">Pro</div></div><div><div class="n" style="color:#dc2626">${proti.length}</div><div class="l">Proti</div></div><div><div class="n" style="color:#ca8a04">${zdrzel.length}</div><div class="l">Zdržel se</div></div><div><div class="n" style="color:#666">${omluven.length}</div><div class="l">Omluven</div></div></div><table><tr><th>Člen</th><th>Hlasování</th></tr>${members.map(n=>{const vote=(vt.votes||{})[n];const exc=(vt.excuses||{})[n];return '<tr><td>'+n+'</td><td>'+(exc?'<span class="omluven">Omluven ('+exc+')</span>':vote==="pro"?'<span class="pro">✓ PRO</span>':vote==="proti"?'<span class="proti">✗ PROTI</span>':vote==="zdrzel"?'<span class="zdrzel">— ZDRŽEL SE</span>':'<span style="color:#999">Nehlasoval</span>')+'</td></tr>'}).join('')}<tr style="background:#f5f5f5;font-weight:700"><td>Celkem</td><td>Pro: ${pro.length} | Proti: ${proti.length} | Zdržel: ${zdrzel.length} | Omluven: ${omluven.length}</td></tr></table><div style="margin-top:30px;font-size:11px;color:#999">Vygenerováno: ${new Date().toLocaleString('cs-CZ')}</div></body></html>`;
+    const blob=new Blob([html],{type:'text/html'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`hlasovani-${vt.topic.replace(/\s+/g,'-').toLowerCase()}.html`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)};
+
+  const pgVotings=()=>{if(selVt){const v=(T.votings||[]).find(x=>x.id===selVt.id)||selVt;const members=(T.contacts||[]).map(c=>c.name);const vts=v.votes||{};const exc=v.excuses||{};const pro=members.filter(n=>vts[n]==="pro").length;const proti=members.filter(n=>vts[n]==="proti").length;const zdrzel=members.filter(n=>vts[n]==="zdrzel").length;
+    return (<div>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+      <button style={{display:'flex',alignItems:'center',gap:5,color:'var(--ac)',fontSize:12,fontWeight:600,fontFamily:'var(--f)',background:'none',border:'none',cursor:'pointer'}} onClick={()=>setSelVt(null)}><Ic.Bk/> Zpět</button>
+      <div style={{display:'flex',gap:6}}>
+        <button className="ba" style={{fontSize:10}} onClick={()=>exportVoting(v)}>📄 Export</button>
+        <button className="ba" style={{fontSize:10,color:v.done?'var(--g)':'var(--t3)'}} onClick={()=>togVoteDone(v.id)}>{v.done?"✓ Ukončeno":"○ Ukončit"}</button>
+      </div>
+    </div>
+    <div className="pt" style={{marginBottom:8}}>{v.topic}</div>
+    {v.description&&<div style={{fontSize:12,color:'var(--t2)',marginBottom:12}}>{v.description}</div>}
+    <div style={{fontSize:10,color:'var(--t3)',marginBottom:12}}>Datum: {fd(v.date)} · Vytvořil: {v.createdBy}</div>
+
+    <div className="lb">Dokumenty ({(v.docs||[]).length})</div>
+    <div className="doc-list">{(v.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
+    <div style={{marginTop:8,marginBottom:16}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToVoting(v.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+
+    <div className="lb">Výsledek hlasování</div>
+    <div style={{display:'flex',gap:10,marginBottom:12}}>
+      <div style={{flex:1,background:'rgba(22,163,74,.1)',borderRadius:12,padding:12,textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:24,color:'var(--g)'}}>{pro}</div><div style={{fontSize:10,color:'var(--t3)'}}>PRO</div></div>
+      <div style={{flex:1,background:'rgba(220,38,38,.1)',borderRadius:12,padding:12,textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:24,color:'var(--r)'}}>{proti}</div><div style={{fontSize:10,color:'var(--t3)'}}>PROTI</div></div>
+      <div style={{flex:1,background:'rgba(202,138,4,.1)',borderRadius:12,padding:12,textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:24,color:'var(--y)'}}>{zdrzel}</div><div style={{fontSize:10,color:'var(--t3)'}}>ZDRŽEL</div></div>
+    </div>
+
+    <div className="att" style={{background:'var(--cd)',border:'1px solid var(--b)'}}>
+    {members.map(n=>{const vote=vts[n];const isExc=!!exc[n];
+      return (<div className="att-row" key={n} style={{flexWrap:'wrap',gap:6}}>
+        <span className="att-name" style={{fontWeight:600,minWidth:100}}>{n}</span>
+        {isExc?<><span style={{fontSize:10,color:'var(--r)'}}>Omluven – {exc[n]}</span><button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setVExcuse(v.id,n,"")}>Zrušit</button></>
+        :<div style={{display:'flex',gap:4,marginLeft:'auto',flexWrap:'wrap'}}>
+          {["pro","proti","zdrzel"].map(val=> <button key={val} style={{fontSize:10,padding:'4px 10px',borderRadius:12,border:vote===val?'2px solid':'1.5px solid var(--b2)',background:vote===val?(val==="pro"?'rgba(22,163,74,.15)':val==="proti"?'rgba(220,38,38,.15)':'rgba(202,138,4,.15)'):'var(--bg)',color:val==="pro"?'var(--g)':val==="proti"?'var(--r)':'var(--y)',cursor:'pointer',fontFamily:'var(--f)',fontWeight:vote===val?700:500,borderColor:vote===val?(val==="pro"?'var(--g)':val==="proti"?'var(--r)':'var(--y)'):'var(--b2)'}} onClick={()=>setVote(v.id,n,vote===val?"":val)}>{val==="pro"?"✓ Pro":val==="proti"?"✗ Proti":"— Zdržel"}</button>)}
+          <button style={{fontSize:9,padding:'3px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setVExcuse(v.id,n,"Nepřítomen")}>Omluvenka</button>
+        </div>}
+      </div>)})}
+    </div>
+    <EvMeta ev={v}/>
+  </div>)};const upVt=(T.votings||[]).filter(v=>!v.done);const paVt=(T.votings||[]).filter(v=>v.done); return (<div><div className="ph"><div className="pt">Hlasování</div><button className="ba" onClick={()=>setMod("aVt")}><Ic.Plus/> Nové</button></div>
+    {upVt.length===0&&paVt.length===0&&<div className="es"><p>Žádná hlasování</p></div>}
+    {upVt.length>0&&<div className="lb">Aktivní</div>}
+    {upVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)}><div className="cr"><div><div className="ctt">{v.topic}</div><div className="css2">{fd(v.date)}</div></div><button className="ib d" onClick={e=>{e.stopPropagation();del("votings",v.id)}}><Ic.Del/></button></div><div style={{fontSize:10,color:'var(--t3)',marginTop:4}}>✓ {members.filter(n=>vts[n]==="pro").length} Pro · ✗ {members.filter(n=>vts[n]==="proti").length} Proti · — {members.filter(n=>vts[n]==="zdrzel").length} Zdržel</div></div>})}
+    {paVt.length>0&&<div className="lb" style={{marginTop:12}}>Ukončená</div>}
+    {paVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{v.topic}</div><div className="css2">{fd(v.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>})}
+  </div>)};
+
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
     <div style={{display:'flex',gap:6,marginBottom:12}}>{[["list","Seznam"],["stats","Statistiky"]].map(([k,l])=> <button key={k} onClick={()=>setPlTab(k)} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,fontFamily:'var(--f)',cursor:'pointer',border:plTab===k?'1.5px solid var(--ac)':'1.5px solid var(--b2)',background:plTab===k?'var(--ag)':'var(--bg)',color:plTab===k?'var(--ac)':'var(--t3)'}}>{l}</button>)}</div>
     {plTab==="list"&&T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
@@ -562,6 +615,7 @@ export default function App() {
     if(mod==="aAb") return (<FM title="Omluvit hráče" onS={f=>addAb({playerName:f.get('pl'),reason:f.get('rs'),eventDate:f.get('dt'),from:f.get('fr')})} ch={<>{F("fr","Vaše jméno")}<div className="fg"><label className="fl">Hráč</label><select name="pl" className="fi">{T.players.map(p=> <option key={p.id} value={p.name}>{p.name}</option>)}</select></div>{F("dt","Datum","date")}<div className="fg"><label className="fl">Důvod</label><select name="rs" className="fi"><option>Nemoc</option><option>Zranění</option><option>Rodina</option><option>Škola</option></select></div><button type="submit" className="fs">Odeslat</button></>}/>);
     if(mod==="aPo") return (<FM title="Nová anketa" onS={f=>{const opts=f.get('op').split('\n').filter(x=>x.trim()).map(t=>({text:t.trim(),votes:0}));if(opts.length>=2)addPo({question:f.get('q'),options:opts})}} ch={<>{F("q","Otázka")}{F("op","Možnosti","textarea","Modrá\nČervená")}<button type="submit" className="fs">Vytvořit</button></>}/>);
     if(mod==="aMt") return (<FM title="Nová schůze" onS={f=>addMeet({date:f.get('d'),time:f.get('t'),location:f.get('l'),topic:f.get('tp')})} ch={<>{F("tp","Téma/program")}{F("d","Datum","date")}{F("t","Čas","time")}{F("l","Místo")}<button type="submit" className="fs">Vytvořit schůzi</button></>}/>);
+    if(mod==="aVt") return (<FM title="Nové hlasování" onS={f=>addVoting({topic:f.get('tp'),description:f.get('ds')})} ch={<>{F("tp","Téma hlasování")}{F("ds","Popis / zdůvodnění","textarea","",false)}<button type="submit" className="fs">Vytvořit hlasování</button></>}/>);
     if(mod==="aPh") return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Přidat fotku</div>
       <div className="fg"><label className="fl">Vyberte fotku</label><input type="file" accept="image/*" id="ph-file" style={{width:'100%',padding:10,background:'var(--bg)',border:'1.5px solid var(--b2)',borderRadius:'var(--rs)',color:'var(--t)',fontSize:13,fontFamily:'var(--f)'}}/></div>
       <div className="fg"><label className="fl">Popis</label><input type="text" id="ph-cap" className="fi" placeholder="Popis fotky"/></div>
@@ -620,26 +674,7 @@ export default function App() {
       <button type="submit" className="fs">Uložit</button></form></div></div>);}
     return null};
 
-  const pgStats=()=>(<div><div className="ph"><div className="pt">Statistiky</div></div>
-    <div style={{fontSize:10,color:'var(--t3)',marginBottom:10}}>Pouze dokončené události (✓ Proběhlo)</div>
-    <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
-      <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>%</th></tr></thead>
-      <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);const pct=s.totalAll>0?Math.round(s.total/s.totalAll*100):0;return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
-        <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
-        <td style={{padding:'7px 6px',textAlign:'center'}}><div style={{width:'100%',height:16,background:'var(--bg)',borderRadius:8,overflow:'hidden'}}><div style={{height:'100%',width:pct+'%',background:pct>=75?'var(--g)':pct>=50?'var(--ac)':pct>=25?'var(--y)':'var(--r)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:3}}><span style={{fontSize:8,fontWeight:700,color:'#fff'}}>{pct>10?pct+'%':''}</span></div></div></td>
-      </tr>})}</tbody>
-    </table></div>
-    <div style={{marginTop:12,padding:12,background:'var(--cd)',borderRadius:'var(--rd)'}}>
-      <div style={{fontSize:10,fontWeight:600,color:'var(--t3)',marginBottom:6}}>Členské příspěvky</div>
-      <div style={{display:'flex',gap:16,marginBottom:8}}><span style={{fontSize:13,color:'var(--g)',fontWeight:700}}>✓ {T.players.filter(p=>p.feePaid).length} zaplaceno</span><span style={{fontSize:13,color:'var(--r)',fontWeight:700}}>✗ {T.players.filter(p=>!p.feePaid).length} nezaplaceno</span></div>
-      {T.players.filter(p=>!p.feePaid).length>0&&<div style={{fontSize:10,color:'var(--r)',marginTop:4}}>Nezaplaceno: {T.players.filter(p=>!p.feePaid).map(p=>pName(p)).join(', ')}</div>}
-    </div>
-  </div>);
-
-  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings,stats:pgStats};
+  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings,votings:pgVotings};
 
   return (
     <div><style>{S}</style>
@@ -649,8 +684,8 @@ export default function App() {
           <div className="rdv"/>
           {nav.map(n=>(<div key={n.k}>{n.dv&&<div className="rdv"/>}<button className={`ri ${pg===n.k?'a':''}`} onClick={()=>go(n.k)}>{n.i}<span>{n.l}</span>{(bg[n.k]||0)>0&&<span className="bd">{bg[n.k]}</span>}</button></div>))}
           <div className="rft">
-            <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null);setSelMt(null)}} title="Změnit tým"><Ic.Grid/></button>
-            <button onClick={()=>{setAuth(false);setPg("home");setSelM(null);setSelMt(null)}} title="Odhlásit"><Ic.Out/></button>
+            <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Změnit tým"><Ic.Grid/></button>
+            <button onClick={()=>{setAuth(false);setPg("home");setSelM(null);setSelMt(null);setSelVt(null)}} title="Odhlásit"><Ic.Out/></button>
           </div>
         </div>
         <div className="cnt">
