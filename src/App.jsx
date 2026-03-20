@@ -165,20 +165,20 @@ const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;
 :root{--bg:#daf0f7;--bg2:#c5e8f2;--bg3:#b0dcea;--cd:#ffffff;--cd2:#eef8fc;--ac:#1a8aab;--ac2:#15728e;--ag:rgba(26,138,171,.12);--g:#16a34a;--gb:rgba(22,163,74,.1);--r:#dc2626;--rb2:rgba(220,38,38,.1);--y:#ca8a04;--yb:rgba(202,138,4,.1);--o:#ea580c;--p:#7c3aed;--t:#0f2b3d;--t2:#3b6b82;--t3:#6a9bb2;--b:#b0dcea;--b2:#8ecadb;--rd:14px;--rs:10px;--f:'DM Sans',sans-serif;--fd:'Archivo Black',sans-serif}
 body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden}
 .shell{display:flex;height:100vh;max-width:720px;margin:0 auto;background:var(--bg)}
-.rail{width:64px;background:var(--cd);border-right:1px solid rgba(176,220,234,.5);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:6px 0;scrollbar-width:none;box-shadow:2px 0 12px rgba(14,116,144,.04)}
+.rail{width:64px;background:linear-gradient(180deg,#0c2d48 0%,#0a1f33 100%);border-right:none;display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:3px 0 16px rgba(10,31,51,.15)}
 .rail::-webkit-scrollbar{display:none}
-.rdv{width:28px;height:1px;background:var(--b2);margin:3px 0;flex-shrink:0}
-.ri{width:54px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 5px;color:var(--t3);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:8px;font-weight:600;position:relative;border-radius:10px;margin:1px 0;flex-shrink:0;transition:all .15s}
-.ri:hover{color:var(--t);background:var(--cd)}
-.ri.a{color:var(--ac);background:var(--ag)}
-.ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:var(--r);border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg2)}
-.rft{margin-top:auto;padding:6px 0;flex-shrink:0;display:flex;flex-direction:column;gap:4px;align-items:center}
-.rft button{background:none;border:none;color:var(--t3);cursor:pointer;padding:8px;border-radius:10px}
-.rft button:hover{color:var(--r);background:var(--cd)}
+.rdv{width:24px;height:1px;background:rgba(255,255,255,.1);margin:4px 0;flex-shrink:0}
+.ri{width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;color:rgba(255,255,255,.45);cursor:pointer;border:none;background:none;font-family:var(--f);font-size:7.5px;font-weight:600;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.2px}
+.ri:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.08)}
+.ri.a{color:#5ce0f5;background:rgba(92,224,245,.12)}
+.ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:#ef4444;border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #0c2d48}
+.rft{margin-top:auto;padding:8px 0;flex-shrink:0;display:flex;flex-direction:column;gap:4px;align-items:center}
+.rft button{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:8px;border-radius:10px;transition:all .2s}
+.rft button:hover{color:#ef4444;background:rgba(255,255,255,.08)}
 .cnt{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b);flex-shrink:0}
-.hb{background:none;border:none;color:var(--t3);cursor:pointer;padding:6px;position:relative;border-radius:8px}
-.hb:hover{color:var(--t)}.hb .dot{position:absolute;top:3px;right:3px;width:8px;height:8px;background:var(--r);border-radius:50%;border:2px solid var(--bg)}
+.top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#0c2d48,#0f3654);flex-shrink:0}
+.hb{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:6px;position:relative;border-radius:8px}
+.hb:hover{color:#fff}.hb .dot{position:absolute;top:3px;right:3px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #0c2d48}
 .ms{flex:1;overflow-y:auto;padding:14px 16px}
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .pt{font-family:var(--fd);font-size:17px;text-transform:uppercase}
@@ -769,7 +769,7 @@ export default function App() {
           </div>
         </div>
         <div className="cnt">
-          <div className="top"><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase'}}>{tInfo.name}</div></div><button className="hb" onClick={()=>{setNO(true);mAR()}}><Ic.Bell/>{uN>0&&<span className="dot"/>}</button></div>
+          <div className="top"><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:8,height:8,borderRadius:'50%',background:tInfo.color}}/><div style={{fontFamily:'var(--fd)',fontSize:13,textTransform:'uppercase',color:'#fff'}}>{tInfo.name}</div></div><button className="hb" onClick={()=>{setNO(true);mAR()}}><Ic.Bell/>{uN>0&&<span className="dot"/>}</button></div>
           <div className="ms">{pages[pg]?pages[pg]():pgHome()}</div>
         </div>
       </div>
