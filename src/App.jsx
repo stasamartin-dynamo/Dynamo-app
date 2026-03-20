@@ -17,6 +17,21 @@ const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-z
 const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[]});
 const DEF={teams:{}};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
+DEF.teams["a-tym"].matches=[
+{id:"am1",date:"2026-03-22",time:"15:00",opponent:"Týnec/Hrušky",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am2",date:"2026-03-29",time:"15:00",opponent:"TJ Sokol Strachotín",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am3",date:"2026-04-05",time:"10:00",opponent:"TJ Sokol Lanžhot B",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am4",date:"2026-04-12",time:"15:30",opponent:"TJ Sokol Brumovice",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am5",date:"2026-04-19",time:"16:00",opponent:"TJ Velké Bílovice B",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am6",date:"2026-04-26",time:"16:00",opponent:"TJ Slavoj Podivín",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am7",date:"2026-05-03",time:"15:30",opponent:"TJ Sokol Popice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am8",date:"2026-05-10",time:"16:30",opponent:"TJ Sokol Starovice",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am9",date:"2026-05-16",time:"17:00",opponent:"Sokol Dolní Dunajovice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am10",date:"2026-05-24",time:"17:00",opponent:"Bavory/Mikulov B",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am11",date:"2026-05-31",time:"16:00",opponent:"TJ Sokol Šitbořice",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am12",date:"2026-06-07",time:"15:00",opponent:"SK Boleradice 1935",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
+{id:"am13",date:"2026-06-13",time:"15:30",opponent:"TJ Sokol Pouzdřany",location:"Domácí",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""}
+];
 DEF.teams["mladsi-zaci"].players=[{id:"mz1",name:"Josef Grbavčic",number:0,position:"",birthYear:2014},{id:"mz2",name:"Dominik Staša",number:0,position:"",birthYear:2014},{id:"mz3",name:"Šimon Polepil",number:0,position:"",birthYear:2015},{id:"mz4",name:"Antonín Přeslička",number:0,position:"",birthYear:2014},{id:"mz5",name:"Marie Lišková",number:0,position:"",birthYear:2014},{id:"mz6",name:"Tomáš Rohrer",number:0,position:"",birthYear:2014},{id:"mz7",name:"Richard Vybíral",number:0,position:"",birthYear:2014},{id:"mz8",name:"Rudolf Bokora",number:0,position:"",birthYear:2015},{id:"mz9",name:"Miroslav Bystřický",number:0,position:"",birthYear:2015},{id:"mz10",name:"Jindřich Donné",number:0,position:"",birthYear:2015},{id:"mz11",name:"David Sedlák",number:0,position:"",birthYear:2015},{id:"mz12",name:"Michael Lípa",number:0,position:"",birthYear:2013},{id:"mz13",name:"Ondřej Kocman",number:0,position:"",birthYear:2013},{id:"mz14",name:"Pavel Lahvička",number:0,position:"",birthYear:2013},{id:"mz15",name:"Dmytro Mula",number:0,position:"",birthYear:2012}];
 DEF.teams["mladsi-zaci"].matches=[
 {id:"mzm1",date:"2026-04-05",time:"10:00",opponent:"TJ Starovičky",location:"Venku",type:"Liga",result:null,lineup:[],attendance:{},excuses:{},done:false,createdBy:"Systém",editedBy:""},
