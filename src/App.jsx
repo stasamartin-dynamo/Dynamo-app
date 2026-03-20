@@ -513,7 +513,8 @@ export default function App() {
     const doneTr=(T.trainings||[]).filter(t=>t.done).sort((a,b)=>b.date.localeCompare(a.date));
     const doneMt=isV?(T.meetings||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
     const doneVt=isV?(T.votings||[]).filter(v=>v.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
-    const allDone=[...doneM.map(d=>({...d,_k:"match"})),...doneTr.map(d=>({...d,_k:"train"})),...doneMt.map(d=>({...d,_k:"meet"})),...doneVt.map(d=>({...d,_k:"vote"}))].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const doneSt=isTr?(T.tasks||[]).flatMap(t=>(t.subtasks||[]).filter(s=>s.status==="hotovo").map(s=>({...s,_k:"subtask",_parent:t.title}))):[];
+    const allDone=[...doneM.map(d=>({...d,_k:"match"})),...doneTr.map(d=>({...d,_k:"train"})),...doneMt.map(d=>({...d,_k:"meet"})),...doneVt.map(d=>({...d,_k:"vote"})),...doneSt].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
     const mR=doneM.filter(m=>m.result);
     let wins=0,draws=0,losses=0,gf=0,ga=0;
     mR.forEach(m=>{const p=m.result.split(/[:\-]/).map(s=>parseInt(s.trim()));if(p.length===2&&!isNaN(p[0])&&!isNaN(p[1])){const isHome=m.location==="Domácí";const our=isHome?p[0]:p[1];const their=isHome?p[1]:p[0];gf+=our;ga+=their;if(our>their)wins++;else if(our===their)draws++;else losses++}});
@@ -570,13 +571,13 @@ export default function App() {
         Dokončeno {allDone.length>0&&<span style={{color:'var(--t3)',fontWeight:400}}>({allDone.length})</span>}
       </div>
       {allDone.length===0?<div style={{textAlign:'center',padding:'10px 0',color:'var(--t3)',fontSize:10}}>Zatím žádné dokončené události</div>
-      :<>{allDone.slice(0,5).map(d=> <div key={d.id} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 0',borderBottom:'1px solid var(--b)',cursor:'pointer'}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
+      :<>{allDone.slice(0,5).map(d=> <div key={d.id} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 0',borderBottom:'1px solid var(--b)',cursor:'pointer'}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}else if(d._k==="subtask")go("tasks")}}>
           <span style={{width:18,height:18,borderRadius:'50%',background:'rgba(22,163,74,.1)',color:'#16a34a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,flexShrink:0}}>✓</span>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:11,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d._k==="match"?<VS op={d.opponent} sz={11} home={d.location==="Domácí"}/>:(d.focus||d.topic)}</div>
-            <div style={{fontSize:9,color:'var(--t3)'}}>{fd(d.date)}{d.result?" · "+d.result:""}</div>
+            <div style={{fontSize:11,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d._k==="match"?<VS op={d.opponent} sz={11} home={d.location==="Domácí"}/>:d._k==="subtask"?d.title:(d.focus||d.topic)}</div>
+            <div style={{fontSize:9,color:'var(--t3)'}}>{fd(d.date)}{d.result?" · "+d.result:""}{d._k==="subtask"&&d.assignee?" · 👤 "+d.assignee:""}{d._k==="subtask"&&d._parent?" · "+d._parent:""}</div>
           </div>
-          <span style={{fontSize:8,color:'var(--t3)',background:'var(--bg)',padding:'2px 6px',borderRadius:6,flexShrink:0,fontWeight:600}}>{d._k==="match"?"Zápas":d._k==="train"?"Trénink":d._k==="meet"?"Schůze":"Hlasování"}</span>
+          <span style={{fontSize:8,color:'var(--t3)',background:'var(--bg)',padding:'2px 6px',borderRadius:6,flexShrink:0,fontWeight:600}}>{d._k==="match"?"Zápas":d._k==="train"?"Trénink":d._k==="meet"?"Schůze":d._k==="subtask"?"Úkol":"Hlasování"}</span>
         </div>)}
         {allDone.length>5&&<div style={{textAlign:'center',fontSize:10,color:'var(--ac)',padding:6,cursor:'pointer',fontWeight:600}} onClick={()=>go("matches")}>Zobrazit vše →</div>}
       </>}
