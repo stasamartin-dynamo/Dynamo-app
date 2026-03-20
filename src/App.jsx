@@ -610,9 +610,65 @@ export default function App() {
 
 
 
-  const exportVoting=(v)=>{const vt=(T.votings||[]).find(x=>x.id===v.id)||v;const members=(T.contacts||[]).map(c=>c.name);const pro=members.filter(n=>(vt.votes||{})[n]==="pro");const proti=members.filter(n=>(vt.votes||{})[n]==="proti");const zdrzel=members.filter(n=>(vt.votes||{})[n]==="zdrzel");const omluven=members.filter(n=>(vt.excuses||{})[n]);const nehlasoval=members.filter(n=>!(vt.votes||{})[n]&&!(vt.excuses||{})[n]);
-    const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hlasování - ${vt.topic}</title><style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#333}h1{font-size:20px;border-bottom:2px solid #0e7490;padding-bottom:8px}h2{font-size:15px;color:#0e7490;margin-top:20px}.info{color:#666;font-size:13px;margin:4px 0}.result{display:flex;gap:30px;margin:16px 0;padding:16px;background:#f0f9fc;border-radius:8px}.result div{text-align:center}.result .n{font-size:28px;font-weight:900}.result .l{font-size:11px;color:#666;text-transform:uppercase}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;font-size:13px}th{background:#0e7490;color:#fff}.pro{color:#16a34a;font-weight:700}.proti{color:#dc2626;font-weight:700}.zdrzel{color:#ca8a04}.omluven{color:#666;font-style:italic}.docs{margin:12px 0}.docs span{display:inline-block;padding:4px 10px;background:#e0f2fe;border-radius:12px;font-size:12px;margin:2px}@media print{body{margin:20px}}</style></head><body><h1>TJ Dynamo Drnholec — Výbor</h1><h2>Hlasování: ${vt.topic}</h2><div class="info">Datum: ${fd(vt.date)}</div><div class="info">Vytvořil: ${vt.createdBy||"?"}</div>${(vt.docs||[]).length>0?'<div class="docs"><strong>Dokumenty:</strong> '+(vt.docs||[]).map(d=>'<span>📄 '+d.name+'</span>').join(' ')+'</div>':''}<div class="result"><div><div class="n" style="color:#16a34a">${pro.length}</div><div class="l">Pro</div></div><div><div class="n" style="color:#dc2626">${proti.length}</div><div class="l">Proti</div></div><div><div class="n" style="color:#ca8a04">${zdrzel.length}</div><div class="l">Zdržel se</div></div><div><div class="n" style="color:#666">${omluven.length}</div><div class="l">Omluven</div></div></div><table><tr><th>Člen</th><th>Hlasování</th></tr>${members.map(n=>{const vote=(vt.votes||{})[n];const exc=(vt.excuses||{})[n];return '<tr><td>'+n+'</td><td>'+(exc?'<span class="omluven">Omluven ('+exc+')</span>':vote==="pro"?'<span class="pro">✓ PRO</span>':vote==="proti"?'<span class="proti">✗ PROTI</span>':vote==="zdrzel"?'<span class="zdrzel">— ZDRŽEL SE</span>':'<span style="color:#999">Nehlasoval</span>')+'</td></tr>'}).join('')}<tr style="background:#f5f5f5;font-weight:700"><td>Celkem</td><td>Pro: ${pro.length} | Proti: ${proti.length} | Zdržel: ${zdrzel.length} | Omluven: ${omluven.length}</td></tr></table><div style="margin-top:30px;font-size:11px;color:#999">Vygenerováno: ${new Date().toLocaleString('cs-CZ')}</div></body></html>`;
-    const blob=new Blob([html],{type:'text/html'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`hlasovani-${vt.topic.replace(/\s+/g,'-').toLowerCase()}.html`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)};
+  const exportVoting=(v)=>{const vt=(T.votings||[]).find(x=>x.id===v.id)||v;const members=(T.contacts||[]).map(c=>c.name);const pro=members.filter(n=>(vt.votes||{})[n]==="pro");const proti=members.filter(n=>(vt.votes||{})[n]==="proti");const zdrzel=members.filter(n=>(vt.votes||{})[n]==="zdrzel");const omluven=members.filter(n=>(vt.excuses||{})[n]);
+    const imgDocs=(vt.docs||[]).filter(d=>d.data?.startsWith('data:image'));
+    const pdfDocs=(vt.docs||[]).filter(d=>d.data?.startsWith('data:application/pdf'));
+    const otherDocs=(vt.docs||[]).filter(d=>d.data&&!d.data.startsWith('data:image')&&!d.data.startsWith('data:application/pdf'));
+    const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hlasování - ${vt.topic}</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;max-width:750px;margin:0 auto;padding:30px;color:#333;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.header{display:flex;align-items:center;gap:16px;border-bottom:3px solid #0e7490;padding-bottom:12px;margin-bottom:20px}
+.logo{width:50px;height:50px;background:#0e7490;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;flex-shrink:0}
+.header h1{margin:0;font-size:18px;color:#0e7490}
+.header .sub{font-size:12px;color:#666;margin-top:2px}
+h2{font-size:16px;color:#0e7490;margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid #e5e7eb}
+.info{color:#666;font-size:12px;margin:3px 0}
+.desc{font-size:13px;color:#444;margin:10px 0;padding:10px 14px;background:#f8fafc;border-left:3px solid #0e7490;border-radius:0 8px 8px 0;line-height:1.5}
+.result{display:flex;gap:20px;margin:16px 0;padding:16px;background:#f0f9fc;border-radius:10px}
+.result div{flex:1;text-align:center;padding:8px;border-radius:8px}
+.result .n{font-size:32px;font-weight:900}
+.result .l{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px}
+th,td{padding:8px 12px;border:1px solid #e5e7eb;text-align:left}
+th{background:#0e7490;color:#fff;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+tr:nth-child(even){background:#f8fafc}
+.pro{color:#16a34a;font-weight:700}.proti{color:#dc2626;font-weight:700}.zdrzel{color:#ca8a04;font-weight:600}.omluven{color:#666;font-style:italic}
+.total-row{background:#f0f9fc!important;font-weight:700;border-top:2px solid #0e7490}
+.doc-section{margin:20px 0;page-break-before:auto}
+.doc-section img{max-width:100%;border-radius:8px;border:1px solid #e5e7eb;margin:8px 0}
+.doc-name{font-size:11px;color:#666;margin:4px 0}
+.footer{margin-top:30px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#999;display:flex;justify-content:space-between}
+.no-print{text-align:center;margin-bottom:20px}
+.no-print button{padding:10px 28px;background:#0e7490;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.no-print button:hover{background:#0c5c72}
+@media print{.no-print{display:none} .doc-section{page-break-inside:avoid}}
+</style></head><body>
+<div class="no-print"><button onclick="window.print()">📄 Uložit jako PDF</button></div>
+<div class="header"><div class="logo">TJD</div><div><h1>TJ Dynamo Drnholec — Výbor</h1><div class="sub">Zápis z hlasování</div></div></div>
+<h2>📋 ${vt.topic}</h2>
+<div class="info">📅 Datum: ${fd(vt.date)}</div>
+<div class="info">👤 Vytvořil: ${vt.createdBy||"—"}</div>
+${vt.description?'<div class="desc">'+vt.description+'</div>':''}
+<h2>📊 Výsledek hlasování</h2>
+<div class="result">
+<div style="background:rgba(22,163,74,.08)"><div class="n" style="color:#16a34a">${pro.length}</div><div class="l">Pro</div></div>
+<div style="background:rgba(220,38,38,.08)"><div class="n" style="color:#dc2626">${proti.length}</div><div class="l">Proti</div></div>
+<div style="background:rgba(202,138,4,.08)"><div class="n" style="color:#ca8a04">${zdrzel.length}</div><div class="l">Zdržel se</div></div>
+<div style="background:rgba(100,100,100,.06)"><div class="n" style="color:#666">${omluven.length}</div><div class="l">Omluven</div></div>
+</div>
+<h2>👥 Hlasování členů</h2>
+<table><thead><tr><th style="width:40%">Člen výboru</th><th>Hlasování</th></tr></thead><tbody>
+${members.map(n=>{const vote=(vt.votes||{})[n];const exc=(vt.excuses||{})[n];return '<tr><td style="font-weight:600">'+n+'</td><td>'+(exc?'<span class="omluven">Omluven ('+exc+')</span>':vote==="pro"?'<span class="pro">✓ PRO</span>':vote==="proti"?'<span class="proti">✗ PROTI</span>':vote==="zdrzel"?'<span class="zdrzel">— ZDRŽEL SE</span>':'<span style="color:#999">Nehlasoval</span>')+'</td></tr>'}).join('')}
+<tr class="total-row"><td>Celkem přítomných: ${members.length-omluven.length} / ${members.length}</td><td>Pro: ${pro.length} | Proti: ${proti.length} | Zdržel: ${zdrzel.length} | Omluven: ${omluven.length}</td></tr>
+</tbody></table>
+${imgDocs.length>0||pdfDocs.length>0||otherDocs.length>0?'<h2>📎 Přílohy ('+(vt.docs||[]).length+')</h2>':''}
+${imgDocs.map(d=>'<div class="doc-section"><div class="doc-name">📷 '+d.name+'</div><img src="'+d.data+'" alt="'+d.name+'"/></div>').join('')}
+${pdfDocs.map(d=>'<div class="doc-section"><div class="doc-name">📄 '+d.name+'</div><iframe src="'+d.data+'" style="width:100%;height:600px;border:1px solid #e5e7eb;border-radius:8px"></iframe></div>').join('')}
+${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name+'</div></div>').join('')}
+<div class="footer"><span>TJ Dynamo Drnholec — Výbor</span><span>Vygenerováno: ${new Date().toLocaleString('cs-CZ')}</span></div>
+</body></html>`;
+    const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();w.onload=()=>setTimeout(()=>w.print(),500)}};
 
   const pgVotings=()=>{if(selVt){const v=(T.votings||[]).find(x=>x.id===selVt.id)||selVt;const members=(T.contacts||[]).map(c=>c.name);const vts=v.votes||{};const exc=v.excuses||{};const pro=members.filter(n=>vts[n]==="pro").length;const proti=members.filter(n=>vts[n]==="proti").length;const zdrzel=members.filter(n=>vts[n]==="zdrzel").length;
     return (<div>
