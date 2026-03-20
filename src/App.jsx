@@ -506,16 +506,7 @@ export default function App() {
     {isV?(<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasov.</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
     :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Trénin.</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
 
-    {/* Příští zápas - FIRST */}
-    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div>{nxM?<div style={ecs} onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt" style={{fontSize:14,fontWeight:700}}><VS op={nxM.opponent} sz={14}/></div><div className="css2" style={{marginTop:3}}>{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`} style={{fontSize:10,padding:'4px 10px'}}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející zápas</div></div>}</div>)}
-
-    {/* Příští trénink - SECOND */}
-    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div>{nxT?<div style={ecs} onClick={()=>go("trainings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxT.focus}</div><div className="css2" style={{marginTop:3}}>{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející trénink</div></div>}</div>)}
-
-    {/* Výbor - příští schůze */}
-    {nxMt&&isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div style={ecs} onClick={()=>go("meetings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxMt.topic}</div><div className="css2" style={{marginTop:3}}>{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
-
-    {/* Bilance - THIRD */}
+    {/* Bilance sezóny */}
     {!isV&&<div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',marginBottom:10}}>
       <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:5}}>⚽ Bilance sezóny</div>
       {played>0?<>
@@ -529,7 +520,14 @@ export default function App() {
       </>:<div style={{textAlign:'center',padding:8,color:'var(--t3)',fontSize:10}}>Zatím žádné odehrané zápasy</div>}
     </div>}
 
-    {/* Dokončeno - LAST, vždy viditelné */}
+    {/* Příští zápas */}
+    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div>{nxM?<div style={ecs} onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt" style={{fontSize:14,fontWeight:700}}><VS op={nxM.opponent} sz={14}/></div><div className="css2" style={{marginTop:3}}>{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`} style={{fontSize:10,padding:'4px 10px'}}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející zápas</div></div>}</div>)}
+
+    {/* Příští trénink */}
+    {!isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div>{nxT?<div style={ecs} onClick={()=>go("trainings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxT.focus}</div><div className="css2" style={{marginTop:3}}>{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div>:<div style={{...ecs,cursor:'default',opacity:.5,textAlign:'center',padding:16}}><div style={{fontSize:11,color:'var(--t3)'}}>Žádný nadcházející trénink</div></div>}</div>)}
+
+    {/* Výbor - příští schůze */}
+    {nxMt&&isV&&(<div style={{marginBottom:10}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div style={ecs} onClick={()=>go("meetings")}><div className="ctt" style={{fontSize:13,fontWeight:600}}>{nxMt.topic}</div><div className="css2" style={{marginTop:3}}>{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
     <div style={{background:'var(--cd)',borderRadius:14,padding:12,boxShadow:'0 4px 14px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9)',border:'1px solid rgba(22,163,74,.12)'}}>
       <div style={{fontSize:10,fontWeight:700,color:'#16a34a',textTransform:'uppercase',letterSpacing:1,marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
         <span style={{width:20,height:20,borderRadius:'50%',background:'#16a34a',color:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>✓</span>
