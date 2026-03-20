@@ -1014,10 +1014,19 @@ ${otherDocs.map(d=>'<div class="doc-section"><div class="doc-name">📎 '+d.name
       </div>
       <div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>{fd(t.date)} · {t.createdBy}</div>
       {t.text&&<div style={{fontSize:11,color:'var(--t2)',marginTop:4,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{t.text}</div>}
-      {subs.length>0&&<div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
-        <div style={{flex:1,height:5,borderRadius:3,overflow:'hidden',background:'var(--bg)',display:'flex'}}>{doneC>0&&<div style={{flex:doneC,background:'#16a34a'}}/>}{(subs.length-doneC)>0&&<div style={{flex:subs.length-doneC,background:'var(--b2)'}}/>}</div>
-        <span style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>{doneC}/{subs.length}</span>
-      </div>}
+      {subs.length>0&&<>
+        <div style={{display:'flex',alignItems:'center',gap:6,marginTop:8,marginBottom:6}}>
+          <div style={{flex:1,height:5,borderRadius:3,overflow:'hidden',background:'var(--bg)',display:'flex'}}>{doneC>0&&<div style={{flex:doneC,background:'#16a34a'}}/>}{(subs.length-doneC)>0&&<div style={{flex:subs.length-doneC,background:'var(--b2)'}}/>}</div>
+          <span style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>{doneC}/{subs.length}</span>
+        </div>
+        {subs.map(s=><div key={s.id} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 0',borderTop:'1px solid var(--b)',fontSize:10}} onClick={e=>e.stopPropagation()}>
+          <span style={{width:7,height:7,borderRadius:'50%',background:taskColors[s.status]||'#999',flexShrink:0}}/>
+          <span style={{flex:1,fontWeight:600,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.title}</span>
+          {s.assignee&&<span style={{color:'var(--ac)',fontSize:9,flexShrink:0}}>👤 {s.assignee}</span>}
+          {s.deadline&&<span style={{fontSize:8,color:new Date(s.deadline)<new Date()&&s.status!=="hotovo"?'#dc2626':'var(--t3)',flexShrink:0,fontWeight:600}}>{new Date(s.deadline).toLocaleDateString('cs-CZ',{day:'numeric',month:'short'})}{new Date(s.deadline)<new Date()&&s.status!=="hotovo"?" ⚠":""}</span>}
+          <span style={{fontSize:8,padding:'1px 6px',borderRadius:8,background:taskColors[s.status]+'18',color:taskColors[s.status],fontWeight:700,flexShrink:0,whiteSpace:'nowrap'}}>{s.status==="přiděleno"?"Přiděleno":s.status==="zpracovávám"?"Zpracov.":"✓ Hotovo"}</span>
+        </div>)}
+      </>}
       {subs.length===0&&<div style={{fontSize:9,color:'var(--t3)',marginTop:4,fontStyle:'italic'}}>Žádné úkoly</div>}
     </div>})}
   </div>)};
