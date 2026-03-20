@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#7c3aed",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#ca8a04",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
-const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[]});
+const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[]});
 const DEF={teams:{}};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
 DEF.teams["a-tym"].players=[{id:"p1",name:"Jan Novák",number:7,position:"Útočník",birthYear:2000},{id:"p2",name:"Petr Dvořák",number:3,position:"Obránce",birthYear:1999},{id:"p3",name:"Martin Svoboda",number:10,position:"Záložník",birthYear:2001},{id:"p4",name:"Tomáš Černý",number:1,position:"Brankář",birthYear:1998}];
@@ -193,6 +193,10 @@ export default function App() {
   const addTr=t=>{const n=nt("Trénink: "+t.focus,"trainings");saveT({...T,...n,trainings:[...T.trainings,{...t,id:"t_"+uid(),attendance:{},excuses:{},done:false,createdBy:me||"?",editedBy:""}]});setMod(null)};
   const addPl=p=>{const n=nt("Hráč: "+p.name,"players");saveT({...T,...n,players:[...T.players,{...p,id:"p_"+uid()}]});setMod(null)};
   const addCt=c=>{const n=nt("Kontakt: "+c.name,"contacts");saveT({...T,...n,contacts:[...T.contacts,{...c,id:"c_"+uid()}]});setMod(null)};
+  const editPl=(pid,u)=>{saveT({...T,players:T.players.map(p=>p.id===pid?{...p,...u}:p)});setMod(null)};
+  const editCt=(cid,u)=>{saveT({...T,contacts:T.contacts.map(c=>c.id===cid?{...c,...u}:c)});setMod(null)};
+  const addCoach=c=>{const n=nt("Trenér: "+c.name,"coaches");saveT({...T,...n,coaches:[...T.coaches,{...c,id:"co_"+uid()}]});setMod(null)};
+  const editCoach=(cid,u)=>{saveT({...T,coaches:T.coaches.map(c=>c.id===cid?{...c,...u}:c)});setMod(null)};
   const addNw=a=>{const n=nt("Aktualita: "+a.title,"news");saveT({...T,...n,news:[{...a,id:"nw_"+uid(),date:now(),pinned:false},...T.news]});setMod(null)};
   const sChat=(tx,f)=>{if(!tx.trim()||!f.trim())return;const n=nt(f+": "+tx.substring(0,30),"chat");saveT({...T,...n,chat:[...T.chat,{id:"ch_"+uid(),ts:now(),from:f,text:tx}]});setCi("")};
   const addAb=a=>{const n=nt("Omluvenka: "+a.playerName,"absences");saveT({...T,...n,absences:[...T.absences,{...a,id:"a_"+uid(),date:td(),status:"pending"}]});setMod(null)};
@@ -229,8 +233,8 @@ export default function App() {
         {isExc&&<button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,"")}>Zrušit omluvu</button>}
       </div>)})}</div>)};
 
-  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
-  const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"chat",l:"Chat",i: <Ic.Chat/>}];
+  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
+  const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"chat",l:"Chat",i: <Ic.Chat/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true}];
   const nav=isV?navVybor:navTeam;
 
   const pgHome=()=>(<div>
@@ -315,12 +319,16 @@ export default function App() {
         {p.phone&&<div style={{fontSize:10,marginTop:2}}><a href={`tel:${p.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>📱 {p.phone}</a></div>}
         {p.parentName&&<div style={{fontSize:10,color:'var(--t2)',marginTop:3,borderTop:'1px solid var(--b)',paddingTop:3}}>👤 {p.parentName}{p.parentPhone&&<a href={`tel:${p.parentPhone}`} style={{color:'var(--ac)',textDecoration:'none',marginLeft:6}}>📞 {p.parentPhone}</a>}</div>}
       </div>
-      <button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button>
+      <div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eP",ev:p})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button></div>
     </div>)}</div>);
 
   const pgCt=()=>(<div><div className="ph"><div className="pt">{isV?"Členové výboru":"Adresář"}</div><button className="ba" onClick={()=>setMod("aCt")}><Ic.Plus/></button></div>
     {T.contacts.length===0&&<div className="es"><p>Žádné kontakty</p></div>}
-    {T.contacts.map(c=> <div className="cx" key={c.id}><div className="ca">{c.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:12}}>{c.name}</div>{c.relation&&<div style={{fontSize:10,color:'var(--ac)'}}>{c.relation}</div>}<div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>{c.phone&&<a href={`tel:${c.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>{c.phone}</a>} {c.email&&<span style={{marginLeft:6}}>{c.email}</span>}</div></div><button className="ib d" onClick={()=>del("contacts",c.id)}><Ic.Del/></button></div>)}</div>);
+    {T.contacts.map(c=> <div className="cx" key={c.id}><div className="ca">{c.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:12}}>{c.name}</div>{c.relation&&<div style={{fontSize:10,color:'var(--ac)'}}>{c.relation}</div>}<div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>{c.phone&&<a href={`tel:${c.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>{c.phone}</a>} {c.email&&<span style={{marginLeft:6}}>{c.email}</span>}</div></div><div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eCt",ev:c})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("contacts",c.id)}><Ic.Del/></button></div></div>)}</div>);
+
+  const pgCoaches=()=>(<div><div className="ph"><div className="pt">Trenéři</div><button className="ba" onClick={()=>setMod("aCo")}><Ic.Plus/></button></div>
+    {(T.coaches||[]).length===0&&<div className="es"><p>Žádní trenéři</p></div>}
+    {(T.coaches||[]).map(c=> <div className="cx" key={c.id}><div className="ca" style={{background:'rgba(220,38,38,.1)',color:'var(--r)'}}>{c.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:12}}>{c.name}</div>{c.role&&<div style={{fontSize:10,color:'var(--r)',fontWeight:500}}>{c.role}</div>}<div style={{fontSize:10,color:'var(--t3)',marginTop:2}}>{c.phone&&<a href={`tel:${c.phone}`} style={{color:'var(--ac)',textDecoration:'none'}}>📞 {c.phone}</a>} {c.email&&<span style={{marginLeft:6}}>{c.email}</span>}</div></div><div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eCo",ev:c})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("coaches",c.id)}><Ic.Del/></button></div></div>)}</div>);
 
   const pgNw=()=>(<div><div className="ph"><div className="pt">Aktuality</div><button className="ba" onClick={()=>setMod("aNw")}><Ic.Plus/> Nová</button></div>
     {T.news.length===0&&<div className="es"><p>Žádné aktuality</p></div>}
@@ -362,13 +370,14 @@ export default function App() {
       <button className="fs" onClick={()=>{const f=document.getElementById('ph-file').files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const n=nt("Nová fotka","photos");saveT({...T,...n,photos:[...T.photos,{id:"ph_"+uid(),url:ev.target.result,caption:document.getElementById('ph-cap').value||"",date:td()}]});setMod(null)};r.readAsDataURL(f)}}>Nahrát</button>
     </div></div>);
     if(mod?.type==="eM"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Upravit zápas</div>
-      <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editEv("matches",ev.id,{opponent:f.get('o'),date:f.get('d'),time:f.get('t'),meetTime:f.get('mt'),location:f.get('l'),type:f.get('tp')})}}>
+      <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editEv("matches",ev.id,{opponent:f.get('o'),date:f.get('d'),time:f.get('t'),meetTime:f.get('mt'),location:f.get('l'),type:f.get('tp'),result:f.get('rs')||null})}}>
       <div className="fg"><label className="fl">Soupeř</label><input name="o" className="fi" defaultValue={ev.opponent} required/></div>
       <div className="fg"><label className="fl">Datum</label><input name="d" type="date" className="fi" defaultValue={ev.date} required/></div>
       <div className="fg"><label className="fl">Čas zápasu</label><input name="t" type="time" className="fi" defaultValue={ev.time} required/></div>
       <div className="fg"><label className="fl">Čas srazu</label><input name="mt" type="time" className="fi" defaultValue={ev.meetTime||""}/></div>
       <div className="fg"><label className="fl">Místo</label><select name="l" className="fi" defaultValue={ev.location}><option value="Domácí">Doma</option><option value="Venku">Venku</option></select></div>
       <div className="fg"><label className="fl">Typ</label><select name="tp" className="fi" defaultValue={ev.type}><option>Liga</option><option>Pohár</option><option>Přátelský</option></select></div>
+      <div className="fg"><label className="fl">Výsledek</label><input name="rs" className="fi" defaultValue={ev.result||""} placeholder="3:1 (prázdné = bez výsledku)"/></div>
       <button type="submit" className="fs">Uložit změny</button></form></div></div>);}
     if(mod?.type==="eT"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Upravit trénink</div>
       <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editEv("trainings",ev.id,{focus:f.get('f'),date:f.get('d'),time:f.get('t'),duration:f.get('dr'),location:f.get('l'),notes:f.get('n')})}}>
@@ -386,9 +395,34 @@ export default function App() {
       <div className="fg"><label className="fl">Čas</label><input name="t" type="time" className="fi" defaultValue={ev.time} required/></div>
       <div className="fg"><label className="fl">Místo</label><input name="l" className="fi" defaultValue={ev.location} required/></div>
       <button type="submit" className="fs">Uložit změny</button></form></div></div>);}
+    if(mod?.type==="eP"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Upravit hráče</div>
+      <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editPl(ev.id,{name:f.get('nm'),position:f.get('po'),birthYear:parseInt(f.get('yr')),phone:f.get('ph'),parentName:f.get('pn'),parentPhone:f.get('pp')})}}>
+      <div className="fg"><label className="fl">Jméno</label><input name="nm" className="fi" defaultValue={ev.name} required/></div>
+      <div className="fg"><label className="fl">Pozice</label><select name="po" className="fi" defaultValue={ev.position}><option>Brankář</option><option>Obránce</option><option>Záložník</option><option>Útočník</option></select></div>
+      <div className="fg"><label className="fl">Rok narození</label><select name="yr" className="fi" defaultValue={ev.birthYear}>{Array.from({length:30},(_,i)=>2030-i).map(y=> <option key={y} value={y}>{y}</option>)}</select></div>
+      <div className="fg"><label className="fl">Telefon hráče</label><input name="ph" type="tel" className="fi" defaultValue={ev.phone||""}/></div>
+      <div style={{borderTop:'1px solid var(--b)',paddingTop:10,marginTop:4,marginBottom:8}}><div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase'}}>Rodič</div></div>
+      <div className="fg"><label className="fl">Jméno rodiče</label><input name="pn" className="fi" defaultValue={ev.parentName||""}/></div>
+      <div className="fg"><label className="fl">Telefon rodiče</label><input name="pp" type="tel" className="fi" defaultValue={ev.parentPhone||""}/></div>
+      <button type="submit" className="fs">Uložit</button></form></div></div>);}
+    if(mod?.type==="eCt"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">{isV?"Upravit člena":"Upravit kontakt"}</div>
+      <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editCt(ev.id,{name:f.get('nm'),relation:f.get('rl'),phone:f.get('ph'),email:f.get('em')})}}>
+      <div className="fg"><label className="fl">Jméno</label><input name="nm" className="fi" defaultValue={ev.name} required/></div>
+      <div className="fg"><label className="fl">{isV?"Funkce":"Vztah"}</label><input name="rl" className="fi" defaultValue={ev.relation||""}/></div>
+      <div className="fg"><label className="fl">Telefon</label><input name="ph" type="tel" className="fi" defaultValue={ev.phone||""}/></div>
+      <div className="fg"><label className="fl">E-mail</label><input name="em" type="email" className="fi" defaultValue={ev.email||""}/></div>
+      <button type="submit" className="fs">Uložit</button></form></div></div>);}
+    if(mod==="aCo") return (<FM title="Nový trenér" onS={f=>addCoach({name:f.get('nm'),role:f.get('rl'),phone:f.get('ph'),email:f.get('em')})} ch={<>{F("nm","Jméno")}{F("rl","Role","text","Hlavní trenér / Asistent",false)}{F("ph","Telefon","tel","+420...",false)}{F("em","E-mail","email","",false)}<button type="submit" className="fs">Přidat trenéra</button></>}/>);
+    if(mod?.type==="eCo"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Upravit trenéra</div>
+      <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editCoach(ev.id,{name:f.get('nm'),role:f.get('rl'),phone:f.get('ph'),email:f.get('em')})}}>
+      <div className="fg"><label className="fl">Jméno</label><input name="nm" className="fi" defaultValue={ev.name} required/></div>
+      <div className="fg"><label className="fl">Role</label><input name="rl" className="fi" defaultValue={ev.role||""}/></div>
+      <div className="fg"><label className="fl">Telefon</label><input name="ph" type="tel" className="fi" defaultValue={ev.phone||""}/></div>
+      <div className="fg"><label className="fl">E-mail</label><input name="em" type="email" className="fi" defaultValue={ev.email||""}/></div>
+      <button type="submit" className="fs">Uložit</button></form></div></div>);}
     return null};
 
-  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings};
+  const pages={home:pgHome,matches:pgMatches,trainings:pgTr,players:pgPl,coaches:pgCoaches,contacts:pgCt,news:pgNw,chat:pgChat,polls:pgPo,photos:pgPh,meetings:pgMeetings};
 
   return (
     <div><style>{S}</style>
