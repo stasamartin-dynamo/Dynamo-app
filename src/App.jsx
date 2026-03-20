@@ -296,7 +296,7 @@ export default function App() {
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
   const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [selVt,setSelVt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
-  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
+  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
 
   useEffect(()=>{
     const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
@@ -481,7 +481,7 @@ export default function App() {
         {isExc&&<button style={{fontSize:9,marginLeft:'auto',padding:'2px 7px',borderRadius:12,border:'1px solid var(--b2)',background:'var(--bg)',color:'var(--t3)',cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setExcuse(kind,ev.id,n,"")}>Zrušit omluvu</button>}
       </div>)})}</div>)};
 
-  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"stats",l:"Statistiky",i: <Ic.Chart/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
+  const navTeam=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"news",l:"Aktuality",i: <Ic.News/>},{k:"matches",l:"Zápasy",i: <Ic.Cup/>,dv:true},{k:"trainings",l:"Tréninky",i: <Ic.Cal/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"players",l:"Hráči",i: <Ic.Ppl/>},{k:"coaches",l:"Trenéři",i: <Ic.Meet/>},{k:"polls",l:"Ankety",i: <Ic.Chart/>,dv:true},{k:"photos",l:"Fotky",i: <Ic.Cam/>}];
   const navVybor=[{k:"home",l:"Domů",i: <Ic.Home/>},{k:"contacts",l:"Členové",i: <Ic.Ppl/>},{k:"meetings",l:"Schůze",i: <Ic.Meet/>,dv:true},{k:"votings",l:"Hlasování",i: <Ic.Chart/>},{k:"chat",l:"Chat",i: <Ic.Chat/>,dv:true},{k:"polls",l:"Ankety",i: <Ic.Chart/>}];
   const nav=isV?navVybor:navTeam;
 
@@ -565,7 +565,7 @@ export default function App() {
     {paMt.map(m=> <div className="c2" key={m.id} onClick={()=>setSelMt(m)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{m.topic}</div><div className="css2">{fd(m.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>)}
   </div>)};
 
-  const getStats=(pName)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[pName]).length;const ta=dt.filter(t=>(t.attendance||{})[pName]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
+
 
   const exportVoting=(v)=>{const vt=(T.votings||[]).find(x=>x.id===v.id)||v;const members=(T.contacts||[]).map(c=>c.name);const pro=members.filter(n=>(vt.votes||{})[n]==="pro");const proti=members.filter(n=>(vt.votes||{})[n]==="proti");const zdrzel=members.filter(n=>(vt.votes||{})[n]==="zdrzel");const omluven=members.filter(n=>(vt.excuses||{})[n]);const nehlasoval=members.filter(n=>!(vt.votes||{})[n]&&!(vt.excuses||{})[n]);
     const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hlasování - ${vt.topic}</title><style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#333}h1{font-size:20px;border-bottom:2px solid #0e7490;padding-bottom:8px}h2{font-size:15px;color:#0e7490;margin-top:20px}.info{color:#666;font-size:13px;margin:4px 0}.result{display:flex;gap:30px;margin:16px 0;padding:16px;background:#f0f9fc;border-radius:8px}.result div{text-align:center}.result .n{font-size:28px;font-weight:900}.result .l{font-size:11px;color:#666;text-transform:uppercase}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;font-size:13px}th{background:#0e7490;color:#fff}.pro{color:#16a34a;font-weight:700}.proti{color:#dc2626;font-weight:700}.zdrzel{color:#ca8a04}.omluven{color:#666;font-style:italic}.docs{margin:12px 0}.docs span{display:inline-block;padding:4px 10px;background:#e0f2fe;border-radius:12px;font-size:12px;margin:2px}@media print{body{margin:20px}}</style></head><body><h1>TJ Dynamo Drnholec — Výbor</h1><h2>Hlasování: ${vt.topic}</h2><div class="info">Datum: ${fd(vt.date)}</div><div class="info">Vytvořil: ${vt.createdBy||"?"}</div>${(vt.docs||[]).length>0?'<div class="docs"><strong>Dokumenty:</strong> '+(vt.docs||[]).map(d=>'<span>📄 '+d.name+'</span>').join(' ')+'</div>':''}<div class="result"><div><div class="n" style="color:#16a34a">${pro.length}</div><div class="l">Pro</div></div><div><div class="n" style="color:#dc2626">${proti.length}</div><div class="l">Proti</div></div><div><div class="n" style="color:#ca8a04">${zdrzel.length}</div><div class="l">Zdržel se</div></div><div><div class="n" style="color:#666">${omluven.length}</div><div class="l">Omluven</div></div></div><table><tr><th>Člen</th><th>Hlasování</th></tr>${members.map(n=>{const vote=(vt.votes||{})[n];const exc=(vt.excuses||{})[n];return '<tr><td>'+n+'</td><td>'+(exc?'<span class="omluven">Omluven ('+exc+')</span>':vote==="pro"?'<span class="pro">✓ PRO</span>':vote==="proti"?'<span class="proti">✗ PROTI</span>':vote==="zdrzel"?'<span class="zdrzel">— ZDRŽEL SE</span>':'<span style="color:#999">Nehlasoval</span>')+'</td></tr>'}).join('')}<tr style="background:#f5f5f5;font-weight:700"><td>Celkem</td><td>Pro: ${pro.length} | Proti: ${proti.length} | Zdržel: ${zdrzel.length} | Omluven: ${omluven.length}</td></tr></table><div style="margin-top:30px;font-size:11px;color:#999">Vygenerováno: ${new Date().toLocaleString('cs-CZ')}</div></body></html>`;
@@ -616,8 +616,7 @@ export default function App() {
   </div>)};
 
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
-    <div style={{display:'flex',gap:6,marginBottom:12}}>{[["list","Seznam"],["stats","Statistiky"]].map(([k,l])=> <button key={k} onClick={()=>setPlTab(k)} style={{padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:600,fontFamily:'var(--f)',cursor:'pointer',border:plTab===k?'1.5px solid var(--ac)':'1.5px solid var(--b2)',background:plTab===k?'var(--ag)':'var(--bg)',color:plTab===k?'var(--ac)':'var(--t3)'}}>{l}</button>)}</div>
-    {plTab==="list"&&T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
+    {T.players.sort((a,b)=>a.name.localeCompare(b.name)).map(p=> <div className="pr" key={p.id} style={{flexWrap:'wrap'}}>
       <div className="ca">{p.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontWeight:600,fontSize:12}}>{p.name}</div>
@@ -630,22 +629,6 @@ export default function App() {
         </div>
       </div>
       <div style={{display:'flex',gap:4}}><button className="ib" onClick={()=>setMod({type:"eP",ev:p})} style={{padding:4}}>✎</button><button className="ib d" onClick={()=>del("players",p.id)}><Ic.Del/></button></div>
-    </div>)}
-    {plTab==="stats"&&(<div>
-      <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>Započítávají se pouze dokončené události (✓ Proběhlo)</div>
-      <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
-        <thead><tr style={{background:'var(--ag)'}}><th style={{padding:'8px 6px',textAlign:'left',fontWeight:700,color:'var(--ac)'}}>Hráč</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Zápasy</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Tréninky</th><th style={{padding:'8px 6px',textAlign:'center',fontWeight:700,color:'var(--ac)'}}>Celkem</th></tr></thead>
-        <tbody>{T.players.sort((a,b)=>getStats(b.name).total-getStats(a.name).total).map(p=>{const s=getStats(p.name);return <tr key={p.id} style={{borderBottom:'1px solid var(--b)'}}>
-          <td style={{padding:'7px 6px',fontWeight:500}}>{pName(p)}</td>
-          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ma>0?'var(--g)':'var(--t3)'}}>{s.ma}</span><span style={{color:'var(--t3)'}}> / {s.mt}</span></td>
-          <td style={{padding:'7px 6px',textAlign:'center'}}><span style={{color:s.ta>0?'var(--g)':'var(--t3)'}}>{s.ta}</span><span style={{color:'var(--t3)'}}> / {s.tt}</span></td>
-          <td style={{padding:'7px 6px',textAlign:'center',fontWeight:700}}><span style={{color:s.total>0?'var(--ac)':'var(--t3)'}}>{s.total}</span><span style={{color:'var(--t3)'}}> / {s.totalAll}</span></td>
-        </tr>})}</tbody>
-      </table></div>
-      <div style={{marginTop:10,padding:10,background:'var(--cd)',borderRadius:'var(--rd)'}}>
-        <div style={{fontSize:10,fontWeight:600,color:'var(--t3)',marginBottom:4}}>Příspěvky</div>
-        <div style={{display:'flex',gap:16}}><span style={{fontSize:12,color:'var(--g)',fontWeight:700}}>✓ {T.players.filter(p=>p.feePaid).length} zaplaceno</span><span style={{fontSize:12,color:'var(--r)',fontWeight:700}}>✗ {T.players.filter(p=>!p.feePaid).length} nezaplaceno</span></div>
-      </div>
     </div>)}
   </div>);
 
