@@ -296,7 +296,7 @@ export default function App() {
   const [team,setTeam]=useState(null);const [pg,setPg]=useState("home");const [mod,setMod]=useState(null);
   const [selM,setSelM]=useState(null);const [selMt,setSelMt]=useState(null);const [selVt,setSelVt]=useState(null);const [pin,setPin]=useState("");
   const [pE,setPE]=useState(false);const [nO,setNO]=useState(false);const [me,setMe]=useState("");
-  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
+  const [ci,setCi]=useState("");const [viewPhoto,setViewPhoto]=useState(null);const [plTab,setPlTab]=useState("list");const [ceMod,setCeMod]=useState(null);const [ceAll,setCeAll]=useState(false);const [ceDetail,setCeDetail]=useState(null);const ce=useRef(null);
 
   useEffect(()=>{
     const unsub=onSnapshot(doc(db,"app","data"),(snap)=>{
@@ -615,7 +615,6 @@ export default function App() {
     {paVt.map(v=>{const vts=v.votes||{};const members=(T.contacts||[]).map(c=>c.name);return <div className="c2" key={v.id} onClick={()=>setSelVt(v)} style={{opacity:.6}}><div className="cr"><div><div className="ctt" style={{textDecoration:'line-through'}}>{v.topic}</div><div className="css2">{fd(v.date)}</div></div><span className="tg" style={{background:'var(--ag)',color:'var(--ac)'}}>✓</span></div></div>})}
   </div>)};
 
-  const [plTab,setPlTab]=useState("list");
   const getStats=(nm)=>{const dm=(T.matches||[]).filter(m=>m.done);const dt=(T.trainings||[]).filter(t=>t.done);const ma=dm.filter(m=>(m.attendance||{})[nm]).length;const ta=dt.filter(t=>(t.attendance||{})[nm]).length;return{ma,mt:dm.length,ta,tt:dt.length,total:ma+ta,totalAll:dm.length+dt.length}};
 
   const pgPl=()=>(<div><div className="ph"><div className="pt">Hráči</div><button className="ba" onClick={()=>setMod("aP")}><Ic.Plus/></button></div>
