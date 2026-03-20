@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 const SK="dynamo-v1",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#22d3ee"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#34d399"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#fbbf24"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#fb923c"},{id:"starsi-zaci",name:"Starší žáci",color:"#a855f7"}];
+const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#22d3ee",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#a855f7",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#fb923c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#fbbf24",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#34d399",pin:"5566"}];
 const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[]});
-const DEF={pin:"1234",teams:{}};
+const DEF={teams:{}};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
 DEF.teams["a-tym"].players=[{id:"p1",name:"Jan Novák",number:7,position:"Útočník",birthYear:2000},{id:"p2",name:"Petr Dvořák",number:3,position:"Obránce",birthYear:1999},{id:"p3",name:"Martin Svoboda",number:10,position:"Záložník",birthYear:2001},{id:"p4",name:"Tomáš Černý",number:1,position:"Brankář",birthYear:1998}];
 DEF.teams["a-tym"].matches=[{id:"m1",date:"2026-03-22",time:"15:00",opponent:"SK Mikulov",location:"Domácí",type:"Liga",result:null,lineup:[],rsvp:{}}];
@@ -137,24 +137,7 @@ export default function App() {
   if(!ok) return (<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#0a0f1a',color:'#22d3ee'}}>Načítání...</div>);
   if(!D) return null;
 
-  const hp=d=>{setPE(false);if(d==="back"){setPin(p=>p.slice(0,-1));return}const n=pin+d;setPin(n);if(n.length===4){if(n===D.pin){setAuth(true);setPin("")}else{setPE(true);setTimeout(()=>{setPin("");setPE(false)},600)}}};
-
-  if(!auth) return (
-    <div><style>{S}</style><div className="LS">
-      <div style={{color:'var(--ac)',marginBottom:16,opacity:.85}}><Ic.Ball/></div>
-      <div className="LT">TJ Dynamo</div>
-      <div className="LS2">Drnholec</div>
-      <div style={{color:'var(--t3)',fontSize:12,marginBottom:30}}>Zadejte PIN</div>
-      <div className="LC">
-        <div className="PD">{[0,1,2,3].map(i=> <div key={i} className={i<pin.length?(pE?'e':'f'):''}/>)}</div>
-        {pE&&<div style={{color:'var(--r)',fontSize:13,textAlign:'center',marginBottom:12,fontWeight:600}}>Špatný PIN</div>}
-        <div className="KP">{["1","2","3","4","5","6","7","8","9","","0","back"].map((k,i)=>
-          <button key={i} className={`${!k?"x":""} ${k==="back"?"bk":""}`} onClick={()=>k&&hp(k)}>{k==="back"?"⌫":k}</button>
-        )}</div>
-        <div style={{color:'var(--t3)',fontSize:12,textAlign:'center',marginTop:20}}>PIN: 1234</div>
-      </div>
-    </div></div>
-  );
+  const hp=d=>{setPE(false);if(d==="back"){setPin(p=>p.slice(0,-1));return}const n=pin+d;setPin(n);if(n.length===4){const tPin=TEAMS.find(t=>t.id===team)?.pin;if(n===tPin){setAuth(true);setPin("")}else{setPE(true);setTimeout(()=>{setPin("");setPE(false)},600)}}};
 
   if(!team) return (
     <div><style>{S}</style><div className="ts-screen">
@@ -163,7 +146,7 @@ export default function App() {
       <div style={{color:'var(--t2)',fontSize:13,marginBottom:30}}>Vyberte tým</div>
       <div className="ts-grid">
         {TEAMS.map(t=> (
-          <button key={t.id} className="ts-btn" onClick={()=>{setTeam(t.id);setPg("home")}}>
+          <button key={t.id} className="ts-btn" onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
             <div className="ts-dot" style={{background:t.color}}/>
             <div><div className="ts-name">{t.name}</div>
               <div className="ts-sub">{(D.teams[t.id]?.players||[]).length} hráčů · {(D.teams[t.id]?.matches||[]).filter(m=>!m.result).length} zápasů</div>
@@ -171,7 +154,23 @@ export default function App() {
           </button>
         ))}
       </div>
-      <button style={{marginTop:24,background:'none',border:'none',color:'var(--t3)',fontSize:12,cursor:'pointer',fontFamily:'var(--f)'}} onClick={()=>setAuth(false)}>← Odhlásit</button>
+    </div></div>
+  );
+
+  if(!auth) return (
+    <div><style>{S}</style><div className="LS">
+      <div style={{color:TEAMS.find(t=>t.id===team)?.color||'var(--ac)',marginBottom:16,opacity:.85}}><Ic.Ball/></div>
+      <div className="LT">{TEAMS.find(t=>t.id===team)?.name}</div>
+      <div className="LS2">TJ Dynamo Drnholec</div>
+      <div style={{color:'var(--t3)',fontSize:12,marginBottom:30}}>Zadejte PIN týmu</div>
+      <div className="LC">
+        <div className="PD">{[0,1,2,3].map(i=> <div key={i} className={i<pin.length?(pE?'e':'f'):''}/>)}</div>
+        {pE&&<div style={{color:'var(--r)',fontSize:13,textAlign:'center',marginBottom:12,fontWeight:600}}>Špatný PIN</div>}
+        <div className="KP">{["1","2","3","4","5","6","7","8","9","","0","back"].map((k,i)=>
+          <button key={i} className={`${!k?"x":""} ${k==="back"?"bk":""}`} onClick={()=>k&&hp(k)}>{k==="back"?"⌫":k}</button>
+        )}</div>
+        <button style={{marginTop:20,background:'none',border:'none',color:'var(--t3)',fontSize:12,cursor:'pointer',fontFamily:'var(--f)',width:'100%',textAlign:'center'}} onClick={()=>{setTeam(null);setPin("")}}>← Zpět na výběr týmu</button>
+      </div>
     </div></div>
   );
 
@@ -287,8 +286,8 @@ export default function App() {
           <div className="rdv"/>
           {nav.map(n=>(<div key={n.k}>{n.dv&&<div className="rdv"/>}<button className={`ri ${pg===n.k?'a':''}`} onClick={()=>go(n.k)}>{n.i}<span>{n.l}</span>{(bg[n.k]||0)>0&&<span className="bd">{bg[n.k]}</span>}</button></div>))}
           <div className="rft">
-            <button onClick={()=>{setTeam(null);setPg("home");setSelM(null)}} title="Změnit tým"><Ic.Grid/></button>
-            <button onClick={()=>{setAuth(false);setTeam(null);setPg("home")}} title="Odhlásit"><Ic.Out/></button>
+            <button onClick={()=>{setTeam(null);setAuth(false);setPg("home");setSelM(null)}} title="Změnit tým"><Ic.Grid/></button>
+            <button onClick={()=>{setAuth(false);setPg("home");setSelM(null)}} title="Odhlásit"><Ic.Out/></button>
           </div>
         </div>
         <div className="cnt">
