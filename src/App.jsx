@@ -15,6 +15,8 @@ const db = getFirestore(fbApp);
 const SK="dynamo-v2",now=()=>new Date().toISOString(),td=()=>now().split('T')[0],uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const TEAMS=[{id:"a-tym",name:"A-Tým",color:"#0e7490",pin:"1166"},{id:"starsi-zaci",name:"Starší žáci",color:"#7c3aed",pin:"2266"},{id:"mladsi-zaci",name:"Mladší žáci",color:"#ea580c",pin:"3366"},{id:"starsi-pripravka",name:"Starší přípravka",color:"#ca8a04",pin:"4466"},{id:"mladsi-pripravka",name:"Mladší přípravka",color:"#16a34a",pin:"5566"},{id:"vybor",name:"Výbor",color:"#dc2626",pin:"9966"}];
 const emptyTeam=()=>({badges:{},notifications:[],players:[],contacts:[],coaches:[],matches:[],trainings:[],news:[],chat:[],absences:[],polls:[],photos:[],meetings:[],votings:[]});
+const compressImg=(file,maxW=800,quality=0.6)=>new Promise((res)=>{if(!file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);return}const img=new Image();const r=new FileReader();r.onload=e=>{img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',quality))};img.src=e.target.result};r.readAsDataURL(file)});
+const thumbImg=(file,sz=120)=>new Promise((res)=>{if(!file.type.startsWith('image/')){res(null);return}const img=new Image();const r=new FileReader();r.onload=e=>{img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;const s=Math.min(sz/w,sz/h);c.width=w*s;c.height=h*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',0.5))};img.src=e.target.result};r.readAsDataURL(file)});
 const DEF={teams:{},clubEvents:[]};
 TEAMS.forEach(t=>{DEF.teams[t.id]=emptyTeam()});
 DEF.teams["a-tym"].matches=[
@@ -335,12 +337,13 @@ export default function App() {
           <div style={{fontSize:10,color:'var(--t3)',marginBottom:8}}>{fd0(liveEv.date)} · {liveEv.createdBy||""}</div>
           {liveEv.description&&<div style={{fontSize:12,color:'var(--t2)',lineHeight:1.5,marginBottom:10}}>{liveEv.description}</div>}
           <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',marginBottom:6}}>Dokumenty / Fotky ({(liveEv.docs||[]).length})</div>
-          <div className="doc-list">{(liveEv.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:8}}>{(liveEv.docs||[]).filter(d=>d.data?.startsWith('data:image')).map((d,i)=> <div key={"img"+i} style={{position:'relative'}}><img src={d.data} alt="" style={{width:80,height:80,borderRadius:10,objectFit:'cover',cursor:'pointer'}} onClick={()=>openDoc0(d)}/><button onClick={()=>delDocFromCE(liveEv.id,(liveEv.docs||[]).indexOf(d))} style={{position:'absolute',top:-4,right:-4,width:18,height:18,borderRadius:'50%',background:'var(--r)',border:'2px solid var(--cd)',color:'#fff',fontSize:10,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',padding:0}}>✕</button></div>)}</div>
+          <div className="doc-list">{(liveEv.docs||[]).filter(d=>!d.data?.startsWith('data:image')).map((d,i)=>{const ri=(liveEv.docs||[]).indexOf(d); return <div key={i} style={{display:'flex',alignItems:'center',gap:4}}>
             <button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button>
             <button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer'}}>⬇</button>
-            <button onClick={()=>delDocFromCE(liveEv.id,i)} style={{fontSize:10,color:'var(--r)',padding:'4px 8px',background:'rgba(220,38,38,.08)',borderRadius:12,border:'none',cursor:'pointer'}}>✕</button>
-          </div>)}</div>
-          <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToCE(liveEv.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+            <button onClick={()=>delDocFromCE(liveEv.id,ri)} style={{fontSize:10,color:'var(--r)',padding:'4px 8px',background:'rgba(220,38,38,.08)',borderRadius:12,border:'none',cursor:'pointer'}}>✕</button>
+          </div>})}</div>
+          <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const data=await compressImg(f);const thumb=await thumbImg(f);addDocToCE(liveEv.id,{name:f.name,data,thumb});e.target.value=""}}/></label></div>
         </div>
       </div>})()
 
@@ -350,12 +353,12 @@ export default function App() {
           <button className="ba" style={{fontSize:10,padding:'4px 10px'}} onClick={()=>setCeMod(true)}><Ic.Plus/></button>
         </div>
         {cEvents.length===0&&<div style={{textAlign:'center',fontSize:11,color:'var(--t3)',padding:10}}>Žádné události</div>}
-        {(ceAll?cEvents:cEvents.slice(0,2)).map(ev=> <div className="ce-card" key={ev.id} onClick={()=>setCeDetail(ev)}>
-          <div style={{width:36,height:36,borderRadius:10,background:'var(--ag)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'var(--ac)',fontSize:16}}>📢</div>
+        {(ceAll?cEvents:cEvents.slice(0,2)).map(ev=>{const firstImg=(ev.docs||[]).find(d=>d.thumb||d.data?.startsWith('data:image'));const thumbSrc=firstImg?.thumb||firstImg?.data; return <div className="ce-card" key={ev.id} onClick={()=>setCeDetail(ev)}>
+          {thumbSrc?<img src={thumbSrc} alt="" style={{width:40,height:40,borderRadius:8,objectFit:'cover',flexShrink:0}}/>:<div style={{width:36,height:36,borderRadius:10,background:'var(--ag)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'var(--ac)',fontSize:16}}>📢</div>}
           <div style={{flex:1,minWidth:0}}><div className="ce-title">{ev.title}</div><div className="ce-date">{fd0(ev.date)}{(ev.docs||[]).length>0&&<span> · 📎 {(ev.docs||[]).length}</span>}</div>
           {ev.description&&<div className="ce-desc">{ev.description}</div>}</div>
           <button className="ib d" onClick={e=>{e.stopPropagation();delCE(ev.id)}} style={{padding:3,flexShrink:0}}><Ic.Del/></button>
-        </div>)}
+        </div>})}
         {cEvents.length>2&&!ceAll&&<div className="ce-more" onClick={()=>setCeAll(true)}>Zobrazit dalších {cEvents.length-2} ▾</div>}
         {ceAll&&cEvents.length>2&&<div className="ce-more" onClick={()=>setCeAll(false)}>Skrýt ▴</div>}
       </div>
@@ -550,7 +553,7 @@ export default function App() {
     <div className="pt" style={{marginBottom:8,opacity:m.done?.5:1}}>{m.topic}</div><div style={{color:'var(--t2)',fontSize:12,marginBottom:12}}>{fd(m.date)} · {m.time} · {m.location}</div>
     <div className="lb">Dokumenty ({(m.docs||[]).length})</div>
     <div className="doc-list">{(m.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
-    <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToMeet(m.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+    <div style={{marginTop:8}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const data=await compressImg(f);addDocToMeet(m.id,{name:f.name,data});e.target.value=""}}/></label></div>
     <AttBlock kind="meetings" ev={m}/>
     <EvMeta ev={m}/>
   </div>)};const upMt=T.meetings.filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date));const paMt=T.meetings.filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)); return (<div><div className="ph"><div className="pt">Schůze výboru</div><button className="ba" onClick={()=>setMod("aMt")}><Ic.Plus/> Nová</button></div>
@@ -582,7 +585,7 @@ export default function App() {
 
     <div className="lb">Dokumenty ({(v.docs||[]).length})</div>
     <div className="doc-list">{(v.docs||[]).map((d,i)=> <div key={i} style={{display:'flex',alignItems:'center',gap:4}}><button onClick={()=>openDoc0(d)} className="doc-item" style={{cursor:'pointer',border:'1px solid var(--b)',background:'var(--cd)'}}><Ic.Doc/> {d.name}</button><button onClick={()=>dlDoc0(d)} style={{fontSize:10,color:'var(--ac)',padding:'4px 8px',background:'var(--ag)',borderRadius:12,border:'none',cursor:'pointer',fontFamily:'var(--f)'}}>⬇</button></div>)}</div>
-    <div style={{marginTop:8,marginBottom:16}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{addDocToVoting(v.id,{name:f.name,data:ev.target.result})};r.readAsDataURL(f);e.target.value=""}}/></label></div>
+    <div style={{marginTop:8,marginBottom:16}}><label className="ba" style={{cursor:'pointer',display:'inline-flex'}}><Ic.Plus/> Přidat soubor<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style={{display:'none'}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const data=await compressImg(f);addDocToVoting(v.id,{name:f.name,data});e.target.value=""}}/></label></div>
 
     <div className="lb">Výsledek hlasování</div>
     <div style={{display:'flex',gap:10,marginBottom:12}}>
@@ -691,7 +694,7 @@ export default function App() {
     if(mod==="aPh") return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Přidat fotku</div>
       <div className="fg"><label className="fl">Vyberte fotku</label><input type="file" accept="image/*" id="ph-file" style={{width:'100%',padding:10,background:'var(--bg)',border:'1.5px solid var(--b2)',borderRadius:'var(--rs)',color:'var(--t)',fontSize:13,fontFamily:'var(--f)'}}/></div>
       <div className="fg"><label className="fl">Popis</label><input type="text" id="ph-cap" className="fi" placeholder="Popis fotky"/></div>
-      <button className="fs" onClick={()=>{const f=document.getElementById('ph-file').files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const n=nt("Nová fotka","photos");saveT({...T,...n,photos:[...T.photos,{id:"ph_"+uid(),url:ev.target.result,caption:document.getElementById('ph-cap').value||"",date:td()}]});setMod(null)};r.readAsDataURL(f)}}>Nahrát</button>
+      <button className="fs" onClick={async()=>{const f=document.getElementById('ph-file').files[0];if(!f)return;const data=await compressImg(f);const n=nt("Nová fotka","photos");saveT({...T,...n,photos:[...T.photos,{id:"ph_"+uid(),url:data,caption:document.getElementById('ph-cap').value||"",date:td()}]});setMod(null)}}>Nahrát</button>
     </div></div>);
     if(mod?.type==="eM"){const ev=mod.ev; return (<div className="mo" onClick={()=>setMod(null)}><div className="ml" onClick={e=>e.stopPropagation()}><button className="mc3" onClick={()=>setMod(null)}><Ic.XC/></button><div className="mlt">Upravit zápas</div>
       <form onSubmit={e=>{e.preventDefault();const f=new FormData(e.target);editEv("matches",ev.id,{opponent:f.get('o'),date:f.get('d'),time:f.get('t'),meetTime:f.get('mt'),location:f.get('l'),type:f.get('tp'),result:f.get('rs')||null})}}>
