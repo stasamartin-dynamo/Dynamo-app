@@ -165,10 +165,10 @@ const S=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;
 :root{--bg:#daf0f7;--bg2:#c5e8f2;--bg3:#b0dcea;--cd:#ffffff;--cd2:#eef8fc;--ac:#1a8aab;--ac2:#15728e;--ag:rgba(26,138,171,.12);--g:#16a34a;--gb:rgba(22,163,74,.1);--r:#dc2626;--rb2:rgba(220,38,38,.1);--y:#ca8a04;--yb:rgba(202,138,4,.1);--o:#ea580c;--p:#7c3aed;--t:#0f2b3d;--t2:#3b6b82;--t3:#6a9bb2;--b:#b0dcea;--b2:#8ecadb;--rd:14px;--rs:10px;--f:'DM Sans',sans-serif;--fd:'Archivo Black',sans-serif}
 body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;-webkit-font-smoothing:antialiased;overflow:hidden}
 .shell{display:flex;height:100vh;max-width:720px;margin:0 auto;background:var(--bg)}
-.rail{width:64px;background:linear-gradient(180deg,#0c2d48 0%,#0a1f33 100%);border-right:none;display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:3px 0 16px rgba(10,31,51,.15)}
+.rail{width:72px;background:linear-gradient(180deg,#0c2d48 0%,#0a1f33 100%);border-right:none;display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;padding:8px 0;scrollbar-width:none;box-shadow:3px 0 16px rgba(10,31,51,.15)}
 .rail::-webkit-scrollbar{display:none}
 .rdv{width:24px;height:1px;background:rgba(255,255,255,.1);margin:4px 0;flex-shrink:0}
-.ri{width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;color:var(--team-color,rgba(255,255,255,.5));cursor:pointer;border:none;background:none;font-family:var(--f);font-size:7.5px;font-weight:600;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.2px;opacity:.5}
+.ri{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--team-color,rgba(255,255,255,.5));cursor:pointer;border:none;background:none;font-family:var(--f);font-size:9px;font-weight:700;position:relative;border-radius:12px;margin:1px 0;flex-shrink:0;transition:all .2s;letter-spacing:.3px;opacity:.5;text-shadow:0 1px 2px rgba(0,0,0,.3)}
 .ri:hover{opacity:.8;background:rgba(255,255,255,.06)}
 .ri.a{opacity:1;color:var(--team-color,#5ce0f5);background:rgba(255,255,255,.1);box-shadow:0 0 12px rgba(255,255,255,.05)}
 .ri .bd{position:absolute;top:1px;right:2px;min-width:15px;height:15px;background:#ef4444;border-radius:8px;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid #0c2d48}
