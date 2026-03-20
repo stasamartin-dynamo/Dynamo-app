@@ -491,27 +491,61 @@ export default function App() {
     const doneMt=isV?(T.meetings||[]).filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
     const doneVt=isV?(T.votings||[]).filter(v=>v.done).sort((a,b)=>b.date.localeCompare(a.date)):[];
     const allDone=[...doneM.map(d=>({...d,_k:"match"})),...doneTr.map(d=>({...d,_k:"train"})),...doneMt.map(d=>({...d,_k:"meet"})),...doneVt.map(d=>({...d,_k:"vote"}))].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    /* Match stats */
+    const mR=doneM.filter(m=>m.result);
+    let wins=0,draws=0,losses=0,gf=0,ga=0;
+    mR.forEach(m=>{const p=m.result.split(/[:\-]/).map(s=>parseInt(s.trim()));if(p.length===2&&!isNaN(p[0])&&!isNaN(p[1])){const isHome=m.location==="Domácí";const our=isHome?p[0]:p[1];const their=isHome?p[1]:p[0];gf+=our;ga+=their;if(our>their)wins++;else if(our===their)draws++;else losses++}});
+    const played=wins+draws+losses;
     return (<div>
-    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}><div className="ts-dot" style={{background:tInfo.color,width:10,height:10}}/><div><div style={{fontFamily:'var(--fd)',fontSize:16,textTransform:'uppercase'}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
+    {/* Header s gradientem */}
+    <div style={{background:`linear-gradient(135deg,${tInfo.color}18,${tInfo.color}08)`,borderRadius:16,padding:16,marginBottom:14,border:`1px solid ${tInfo.color}20`}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:40,height:40,borderRadius:12,background:tInfo.color,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontFamily:'var(--fd)',fontSize:16,fontWeight:900}}>{isV?"V":tInfo.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div><div><div style={{fontFamily:'var(--fd)',fontSize:17,textTransform:'uppercase',letterSpacing:.5}}>{tInfo.name}</div><div style={{fontSize:10,color:'var(--t3)'}}>TJ Dynamo Drnholec</div></div></div>
+    </div>
+
+    {/* Statistické dlaždice */}
     {isV? (<div className="sg"><div className="st" onClick={()=>go("contacts")}><div className="sn">{T.contacts.length}</div><div className="sl">Členů</div></div><div className="st" onClick={()=>go("meetings")}><div className="sn">{(T.meetings||[]).filter(m=>!m.done).length}</div><div className="sl">Schůzí</div></div><div className="st" onClick={()=>go("votings")}><div className="sn">{(T.votings||[]).filter(v=>!v.done).length}</div><div className="sl">Hlasování</div></div><div className="st" onClick={()=>go("chat")}><div className="sn">{T.chat.length}</div><div className="sl">Zpráv</div></div></div>)
     :(<div className="sg"><div className="st" onClick={()=>go("players")}><div className="sn">{T.players.length}</div><div className="sl">Hráčů</div></div><div className="st" onClick={()=>go("matches")}><div className="sn">{(T.matches||[]).filter(m=>!m.done).length}</div><div className="sl">Zápasů</div></div><div className="st" onClick={()=>go("trainings")}><div className="sn">{(T.trainings||[]).filter(t=>!t.done).length}</div><div className="sl">Tréninků</div></div><div className="st" onClick={()=>go("photos")}><div className="sn">{T.photos.length}</div><div className="sl">Fotek</div></div></div>)}
-    {nxM&&!isV&&(<><div className="lb">Příští zápas</div><div className="c2" onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}}><div className="cr"><div><div className="ctt">vs {nxM.opponent}</div><div className="css2">{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></>)}
-    {nxT&&!isV&&(<><div className="lb" style={{marginTop:8}}>Příští trénink</div><div className="c2" onClick={()=>go("trainings")}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div></>)}
-    {nxMt&&isV&&(<><div className="lb">Příští schůze</div><div className="c2" onClick={()=>go("meetings")}><div className="ctt">{nxMt.topic}</div><div className="css2">{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></>)}
-    {allDone.length>0&&<>
-      <div className="lb" style={{marginTop:16,display:'flex',alignItems:'center',gap:6}}><span style={{color:'#16a34a',fontSize:14}}>✓</span> Dokončeno ({allDone.length})</div>
-      {allDone.slice(0,5).map(d=> <div className="c2" key={d.id} style={{opacity:.85}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
-        <div className="cr">
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{color:'#16a34a',fontWeight:700,fontSize:13}}>✓</span>
-            <div><div className="ctt">{d._k==="match"?"vs "+d.opponent:d._k==="train"?d.focus:d._k==="meet"?d.topic:d.topic}</div>
-            <div className="css2">{fd(d.date)}{d.result?" · "+d.result:""}{d._k==="match"?" · Zápas":d._k==="train"?" · Trénink":d._k==="meet"?" · Schůze":" · Hlasování"}</div></div>
-          </div>
-          <span style={{background:'#16a34a',color:'#fff',padding:'3px 8px',borderRadius:10,fontSize:9,fontWeight:700,flexShrink:0}}>✓</span>
+
+    {/* Bilance zápasů - jen pro týmy */}
+    {!isV&&<div style={{marginTop:14,background:'var(--cd)',borderRadius:14,padding:14,boxShadow:'0 2px 10px rgba(0,0,0,.04)'}}>
+      <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,marginBottom:10,display:'flex',alignItems:'center',gap:6}}>⚽ Bilance sezóny</div>
+      {played>0?<>
+        <div style={{display:'flex',gap:6,marginBottom:10}}>
+          <div style={{flex:1,background:'rgba(22,163,74,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#16a34a'}}>{wins}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Výhry</div></div>
+          <div style={{flex:1,background:'rgba(202,138,4,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#ca8a04'}}>{draws}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Remízy</div></div>
+          <div style={{flex:1,background:'rgba(220,38,38,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}><div style={{fontFamily:'var(--fd)',fontSize:22,color:'#dc2626'}}>{losses}</div><div style={{fontSize:9,color:'var(--t3)',fontWeight:600}}>Prohry</div></div>
         </div>
-      </div>)}
-      {allDone.length>5&&<div style={{textAlign:'center',fontSize:11,color:'var(--t3)',padding:6}}>a dalších {allDone.length-5}...</div>}
-    </>}
+        <div style={{display:'flex',gap:6}}>
+          <div style={{flex:1,background:'var(--bg)',borderRadius:10,padding:'8px 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:10,color:'var(--t3)',fontWeight:600}}>Odehráno</span><span style={{fontFamily:'var(--fd)',fontSize:16}}>{played}</span></div>
+          <div style={{flex:1,background:'var(--bg)',borderRadius:10,padding:'8px 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:10,color:'var(--t3)',fontWeight:600}}>Skóre</span><span style={{fontFamily:'var(--fd)',fontSize:16,color:gf>ga?'#16a34a':gf<ga?'#dc2626':'var(--t)'}}>{gf}:{ga}</span></div>
+        </div>
+        {played>0&&<div style={{marginTop:8,height:8,borderRadius:4,overflow:'hidden',display:'flex',background:'var(--bg)'}}>{wins>0&&<div style={{flex:wins,background:'#16a34a',borderRadius:4}}/>}{draws>0&&<div style={{flex:draws,background:'#ca8a04'}}/>}{losses>0&&<div style={{flex:losses,background:'#dc2626',borderRadius:4}}/>}</div>}
+      </>:<div style={{textAlign:'center',padding:10,color:'var(--t3)',fontSize:11}}>Zatím žádné odehrané zápasy. Označte zápas jako dokončený a zadejte výsledek.</div>}
+    </div>}
+
+    {/* Příští události */}
+    {nxM&&!isV&&(<div style={{marginTop:14}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏟️ Příští zápas</div><div className="c2" onClick={()=>{go("matches");setTimeout(()=>setSelM({id:nxM.id}),50)}} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="cr"><div><div className="ctt">vs {nxM.opponent}</div><div className="css2">{fd(nxM.date)} · {nxM.time}</div></div><span className={`tg ${nxM.location==="Domácí"?"th":"ta"}`}>{nxM.location==="Domácí"?"Doma":"Venku"}</span></div></div></div>)}
+    {nxT&&!isV&&(<div style={{marginTop:8}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>🏃 Příští trénink</div><div className="c2" onClick={()=>go("trainings")} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="ctt">{nxT.focus}</div><div className="css2">{fd(nxT.date)} · {nxT.time} · {nxT.duration||""}</div></div></div>)}
+    {nxMt&&isV&&(<div style={{marginTop:8}}><div className="lb" style={{display:'flex',alignItems:'center',gap:5}}>📋 Příští schůze</div><div className="c2" onClick={()=>go("meetings")} style={{borderLeft:`3px solid ${tInfo.color}`}}><div className="ctt">{nxMt.topic}</div><div className="css2">{fd(nxMt.date)} · {nxMt.time} · {nxMt.location||""}</div></div></div>)}
+
+    {/* Dokončeno - vždy viditelné */}
+    <div style={{marginTop:16,background:'var(--cd)',borderRadius:14,padding:14,boxShadow:'0 2px 10px rgba(0,0,0,.04)',border:'1px solid rgba(22,163,74,.15)'}}>
+      <div style={{fontSize:11,fontWeight:700,color:'#16a34a',textTransform:'uppercase',letterSpacing:1,marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
+        <span style={{width:22,height:22,borderRadius:'50%',background:'#16a34a',color:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700}}>✓</span>
+        Dokončeno {allDone.length>0&&<span style={{color:'var(--t3)',fontWeight:400}}>({allDone.length})</span>}
+      </div>
+      {allDone.length===0?<div style={{textAlign:'center',padding:'12px 0',color:'var(--t3)',fontSize:11}}>Zatím žádné dokončené události. Označte zápas nebo trénink jako proběhlý.</div>
+      :<>{allDone.slice(0,5).map(d=> <div key={d.id} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 0',borderBottom:'1px solid var(--b)',cursor:'pointer'}} onClick={()=>{if(d._k==="match"){go("matches");setTimeout(()=>setSelM({id:d.id}),50)}else if(d._k==="train")go("trainings");else if(d._k==="meet"){go("meetings");setTimeout(()=>setSelMt(d),50)}else if(d._k==="vote"){go("votings");setTimeout(()=>setSelVt(d),50)}}}>
+          <span style={{width:20,height:20,borderRadius:'50%',background:'rgba(22,163,74,.1)',color:'#16a34a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,flexShrink:0}}>✓</span>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:12,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d._k==="match"?"vs "+d.opponent:d.focus||d.topic}</div>
+            <div style={{fontSize:10,color:'var(--t3)'}}>{fd(d.date)}{d.result?" · "+d.result:""}</div>
+          </div>
+          <span style={{fontSize:9,color:'var(--t3)',background:'var(--bg)',padding:'2px 8px',borderRadius:8,flexShrink:0}}>{d._k==="match"?"Zápas":d._k==="train"?"Trénink":d._k==="meet"?"Schůze":"Hlasování"}</span>
+        </div>)}
+        {allDone.length>5&&<div style={{textAlign:'center',fontSize:11,color:'var(--ac)',padding:8,cursor:'pointer',fontWeight:600}} onClick={()=>go("matches")}>Zobrazit vše →</div>}
+      </>}
+    </div>
   </div>)};
 
   const EvMeta=({ev})=>(<div style={{fontSize:9,color:'var(--t3)',marginTop:8,borderTop:'1px solid var(--b)',paddingTop:6}}>{ev.createdBy&&<span>Vytvořil: {ev.createdBy}</span>}{ev.editedBy&&<span style={{marginLeft:10}}>· Upravil: {ev.editedBy}</span>}</div>);
