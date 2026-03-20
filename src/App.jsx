@@ -363,6 +363,7 @@ export default function App() {
         {ceAll&&cEvents.length>2&&<div className="ce-more" onClick={()=>setCeAll(false)}>Skrýt ▴</div>}
       </div>
 
+      <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',textTransform:'uppercase',letterSpacing:1,width:'100%',maxWidth:380,marginBottom:8,marginTop:4}}>Klubové kategorie</div>
       <div className="ts-grid" style={{flexShrink:0}}>
         {TEAMS.map(t=> {
           const icons={["a-tym"]: "A",["starsi-zaci"]:"SŽ",["mladsi-zaci"]:"MŽ",["starsi-pripravka"]:"SP",["mladsi-pripravka"]:"MP",["vybor"]:"V"};
