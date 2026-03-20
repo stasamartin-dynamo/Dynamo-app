@@ -260,15 +260,15 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .KP button:active{background:var(--ag);border-color:var(--ac);transform:scale(.95)}
 .KP .x{visibility:hidden}.KP .bk{font-size:14px;font-family:var(--f);font-weight:600;color:var(--t2)}
 .ts-screen{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(170deg,#c5e8f2,#daf0f7 40%,#b0dcea);overflow:auto;position:relative}
-.ts-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px}
-.ts-btn{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--cd);border:none;border-radius:16px;cursor:pointer;transition:all .25s;width:100%;text-align:left;font-family:var(--f);color:var(--t);box-shadow:0 2px 12px rgba(14,116,144,.08);position:relative;overflow:hidden}
-.ts-btn::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:0 4px 4px 0;transition:width .25s}
+.ts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:380px}
+.ts-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 10px;background:var(--cd);border:none;border-radius:16px;cursor:pointer;transition:all .25s;width:100%;text-align:center;font-family:var(--f);color:var(--t);box-shadow:0 2px 12px rgba(14,116,144,.08);position:relative;overflow:hidden;aspect-ratio:1}
+.ts-btn::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;border-radius:0 0 4px 4px;transition:height .25s}
 .ts-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,116,144,.15)}
-.ts-btn:hover::before{width:6px}
+.ts-btn:hover::before{height:6px}
 .ts-btn:active{transform:translateY(0)}
-.ts-dot{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:16px;color:#fff;font-weight:900}
-.ts-name{font-weight:700;font-size:15px;letter-spacing:-.3px}
-.ts-sub{font-size:11px;color:var(--t3);margin-top:3px;display:flex;align-items:center;gap:6px}
+.ts-dot{width:44px;height:44px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:18px;color:#fff;font-weight:900}
+.ts-name{font-weight:700;font-size:13px;letter-spacing:-.3px}
+.ts-sub{font-size:10px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:6px;justify-content:center}
 .ts-sub span{display:flex;align-items:center;gap:3px}
 .att{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--rs)}
 .att-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b)}
@@ -277,11 +277,12 @@ body,html{font-family:var(--f);background:var(--bg);color:var(--t);height:100vh;
 .att-name{font-size:12px;font-weight:500;flex:1}
 .doc-list{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
 .doc-item{display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--cd);border:1px solid var(--b);border-radius:16px;font-size:11px;color:var(--ac)}
-.ce-panel{width:100%;max-width:380px;margin-top:16px}
-.ce-card{background:var(--cd);border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 2px 10px rgba(14,116,144,.06);position:relative}
-.ce-card .ce-title{font-weight:700;font-size:12px;margin-bottom:3px}
+.ce-panel{width:100%;max-width:380px;margin-top:12px}
+.ce-card{background:var(--cd);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 10px rgba(14,116,144,.06);position:relative;display:flex;gap:12px;align-items:center;cursor:pointer;transition:all .2s;border-left:4px solid var(--ac)}
+.ce-card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,116,144,.1)}
+.ce-card .ce-title{font-weight:700;font-size:12px;margin-bottom:2px}
 .ce-card .ce-date{font-size:10px;color:var(--t3)}
-.ce-card .ce-desc{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ce-card .ce-desc{font-size:11px;color:var(--t2);margin-top:3px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .ce-more{text-align:center;padding:6px;font-size:11px;color:var(--ac);font-weight:600;cursor:pointer;font-family:var(--f)}
 .ce-dots{display:flex;gap:4px;justify-content:center;margin-top:4px}
 .ce-dots span{width:6px;height:6px;border-radius:50%;background:var(--b2)}
@@ -341,9 +342,10 @@ export default function App() {
         </div>
         {cEvents.length===0&&<div style={{textAlign:'center',fontSize:11,color:'var(--t3)',padding:10}}>Žádné události</div>}
         {(ceAll?cEvents:cEvents.slice(0,2)).map(ev=> <div className="ce-card" key={ev.id} onClick={()=>setCeDetail(ev)}>
-          <div style={{display:'flex',justifyContent:'space-between'}}><div className="ce-title">{ev.title}</div><button className="ib d" onClick={e=>{e.stopPropagation();delCE(ev.id)}} style={{padding:3}}><Ic.Del/></button></div>
-          <div className="ce-date">{fd0(ev.date)}{(ev.docs||[]).length>0&&<span> · 📎 {(ev.docs||[]).length}</span>}</div>
-          {ev.description&&<div className="ce-desc">{ev.description}</div>}
+          <div style={{width:36,height:36,borderRadius:10,background:'var(--ag)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'var(--ac)',fontSize:16}}>📢</div>
+          <div style={{flex:1,minWidth:0}}><div className="ce-title">{ev.title}</div><div className="ce-date">{fd0(ev.date)}{(ev.docs||[]).length>0&&<span> · 📎 {(ev.docs||[]).length}</span>}</div>
+          {ev.description&&<div className="ce-desc">{ev.description}</div>}</div>
+          <button className="ib d" onClick={e=>{e.stopPropagation();delCE(ev.id)}} style={{padding:3,flexShrink:0}}><Ic.Del/></button>
         </div>)}
         {cEvents.length>2&&!ceAll&&<div className="ce-more" onClick={()=>setCeAll(true)}>Zobrazit dalších {cEvents.length-2} ▾</div>}
         {ceAll&&cEvents.length>2&&<div className="ce-more" onClick={()=>setCeAll(false)}>Skrýt ▴</div>}
@@ -356,12 +358,11 @@ export default function App() {
           const evCnt=t.id==="vybor"?(D.teams[t.id]?.meetings||[]).length:((D.teams[t.id]?.matches||[]).length+(D.teams[t.id]?.trainings||[]).length);
           return (
           <button key={t.id} className="ts-btn" style={{"--tc":t.color}} onClick={()=>{setTeam(t.id);setAuth(false);setPin("");setPg("home")}}>
-            <div style={{position:'absolute',top:0,left:0,width:4,height:'100%',background:t.color,borderRadius:'0 4px 4px 0'}}/>
+            <div style={{position:'absolute',top:0,left:0,width:'100%',height:4,background:t.color,borderRadius:'0 0 4px 4px'}}/>
             <div className="ts-dot" style={{background:t.color}}>{icons[t.id]}</div>
-            <div style={{flex:1}}><div className="ts-name">{t.name}</div>
+            <div><div className="ts-name">{t.name}</div>
               <div className="ts-sub"><span>👥 {cnt}</span><span>📅 {evCnt}</span></div>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
           </button>);
         })}
       </div></>)}
